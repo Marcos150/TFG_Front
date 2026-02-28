@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tfg/models/tag.dart';
 import 'package:tfg/utils.dart';
 
 class SheetMusicForm extends StatefulWidget {
@@ -13,7 +14,16 @@ class SheetMusicForm extends StatefulWidget {
 class SheetMusicFormState extends State<SheetMusicForm> {
   final _formKey = GlobalKey<FormState>();
 
-  int? _value = 1;
+  final List<Tag> tags = [
+    const Tag('Pasodoble'),
+    const Tag('Vals'),
+    const Tag('Rock'),
+  ];
+  late final List<bool> _value = List.filled(
+    tags.length,
+    false,
+    growable: true,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -67,17 +77,28 @@ class SheetMusicFormState extends State<SheetMusicForm> {
           ),
           Wrap(
             spacing: 5.0,
-            children: List<Widget>.generate(3, (int index) {
-              return ChoiceChip(
-                label: Text('Etiqueta $index'),
-                selected: _value == index,
-                onSelected: (bool selected) {
+            children: [
+              ...List<Widget>.generate(tags.length, (int index) {
+                return ChoiceChip(
+                  label: Text(tags[index].name),
+                  selected: _value[index],
+                  onSelected: (bool selected) {
+                    setState(() {
+                      _value[index] = !_value[index];
+                    });
+                  },
+                );
+              }),
+              IconButton(
+                onPressed: () {
                   setState(() {
-                    _value = selected ? index : null;
+                    tags.add(const Tag('Tag nuevo'));
+                    _value.add(false);
                   });
                 },
-              );
-            }).toList(),
+                icon: const Icon(Icons.add),
+              ),
+            ],
           ),
           ElevatedButton(
             onPressed: () {
