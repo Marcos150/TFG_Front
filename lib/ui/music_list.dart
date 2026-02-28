@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tfg/models/sheet_music.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:tfg/models/tag.dart';
 import 'package:tfg/ui/common/my_app_bar.dart';
 import 'package:tfg/ui/add_sheet_music_screen.dart';
 import 'package:tfg/utils.dart';
@@ -9,9 +10,9 @@ class MusicList extends StatelessWidget {
   const MusicList({super.key});
 
   static const List<SheetMusic> sheetMusic = [
-    SheetMusic('Amparito Roca'),
-    SheetMusic('Danza Húngara Nº5'),
-    SheetMusic('Danubio Azul'),
+    SheetMusic('Amparito Roca', 'Jaime Texidor', tags: [Tag('Pasodoble')]),
+    SheetMusic('Danza Húngara Nº5', 'Johannes Brahms'),
+    SheetMusic('Danubio Azul', 'Johann Strauss II', tags: [Tag('Vals')]),
   ];
 
   @override
@@ -20,14 +21,14 @@ class MusicList extends StatelessWidget {
       appBar: const MyAppBar(title: 'Mis partituras'),
       body: Center(
         child: ListView.builder(
-          itemBuilder: (_, int i) {
+          itemBuilder: (_, int index) {
             return ListTile(
               leading: const CircleAvatar(),
-              title: Text(sheetMusic[i].name),
+              title: Text(sheetMusic[index].name),
               trailing: IconButton(
                 onPressed: () {
                   showSnackbar(
-                    'Partitura ${sheetMusic[i].name} borrada',
+                    'Partitura ${sheetMusic[index].name} borrada',
                     context,
                   );
                 },
@@ -36,7 +37,7 @@ class MusicList extends StatelessWidget {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute<void>(
-                    builder: (context) => const AddSheetMusicScreen(),
+                    builder: (context) => AddSheetMusicScreen(sheetMusic: sheetMusic[index]),
                   ),
                 );
               },
@@ -59,7 +60,7 @@ class MusicList extends StatelessWidget {
               FloatingActionButton.small(
                 heroTag: null,
                 onPressed: () {
-                  showSnackbar('Escanear', context);
+                  showSnackbar('Importar PDF', context);
                 },
                 child: const Icon(Icons.insert_drive_file),
               ),

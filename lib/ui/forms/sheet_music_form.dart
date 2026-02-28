@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:tfg/models/sheet_music.dart';
 import 'package:tfg/models/tag.dart';
 import 'package:tfg/utils.dart';
 
 class SheetMusicForm extends StatefulWidget {
-  const SheetMusicForm({super.key});
+  const SheetMusicForm({super.key, this.sheetMusic});
+
+  final SheetMusic? sheetMusic;
 
   @override
   SheetMusicFormState createState() {
@@ -19,11 +22,14 @@ class SheetMusicFormState extends State<SheetMusicForm> {
     const Tag('Vals'),
     const Tag('Rock'),
   ];
-  late final List<bool> _value = List.filled(
+  late final List<bool> _value = List.generate(
     tags.length,
-    false,
+    (int index) {
+      return widget.sheetMusic?.tags.contains(tags[index]) ?? false;
+    },
     growable: true,
   );
+  final tagController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -40,13 +46,14 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                     vertical: 16,
                   ),
                   child: TextFormField(
+                    initialValue: widget.sheetMusic?.name,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Título',
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'El campo está vacío';
+                        return 'El título está vacío';
                       }
                       return null;
                     },
@@ -60,13 +67,14 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                     vertical: 16,
                   ),
                   child: TextFormField(
+                    initialValue: widget.sheetMusic?.author,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Autor',
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'El campo está vacío';
+                        return 'El autor está vacío';
                       }
                       return null;
                     },
@@ -91,10 +99,41 @@ class SheetMusicFormState extends State<SheetMusicForm> {
               }),
               IconButton(
                 onPressed: () {
-                  setState(() {
-                    tags.add(const Tag('Tag nuevo'));
-                    _value.add(false);
-                  });
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Añadir etiqueta'),
+                        content: TextField(
+                          controller: tagController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Nombre',
+                          ),
+                        ),
+                        actions: <Widget>[
+                          TextButton(
+                            child: const Text('Cancelar'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              tagController.clear();
+                            },
+                          ),
+                          TextButton(
+                            child: const Text('Añadir'),
+                            onPressed: () {
+                              setState(() {
+                                tags.add(Tag(tagController.text));
+                                _value.add(false);
+                              });
+                              Navigator.of(context).pop();
+                              tagController.clear();
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
                 },
                 icon: const Icon(Icons.add),
               ),
