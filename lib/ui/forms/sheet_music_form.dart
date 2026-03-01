@@ -1,12 +1,16 @@
+import 'dart:io' show File;
+
 import 'package:flutter/material.dart';
 import 'package:tfg/models/sheet_music.dart';
 import 'package:tfg/models/tag.dart';
 import 'package:tfg/utils.dart';
+import 'package:pdfx/pdfx.dart';
 
 class SheetMusicForm extends StatefulWidget {
-  const SheetMusicForm({super.key, this.sheetMusic});
+  const SheetMusicForm({super.key, this.sheetMusic, this.file});
 
   final SheetMusic? sheetMusic;
+  final File? file;
 
   @override
   SheetMusicFormState createState() {
@@ -22,13 +26,9 @@ class SheetMusicFormState extends State<SheetMusicForm> {
     const Tag('Vals'),
     const Tag('Rock'),
   ];
-  late final List<bool> _value = List.generate(
-    tags.length,
-    (int index) {
-      return widget.sheetMusic?.tags.contains(tags[index]) ?? false;
-    },
-    growable: true,
-  );
+  late final List<bool> _value = List.generate(tags.length, (int index) {
+    return widget.sheetMusic?.tags.contains(tags[index]) ?? false;
+  }, growable: true);
   final tagController = TextEditingController();
 
   @override
@@ -139,6 +139,14 @@ class SheetMusicFormState extends State<SheetMusicForm> {
               ),
             ],
           ),
+          if (widget.file != null)
+            Expanded(
+              child: PdfViewPinch(
+                controller: PdfControllerPinch(
+                  document: PdfDocument.openFile(widget.file!.path),
+                ),
+              ),
+            ),
           ElevatedButton(
             onPressed: () {
               if (_formKey.currentState!.validate()) {
