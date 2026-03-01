@@ -47,7 +47,5 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
     <string>Camera is needed in order to scan the sheet music used in the app</string>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>Microphone is needed in order to use the camera to scan the sheet music used in the app</string>
 </dict>
 </plist>

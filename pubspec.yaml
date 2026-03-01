@@ -28,14 +28,12 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  camera: ^0.12.0
   file_picker: ^10.3.10
   flutter:
     sdk: flutter
 
+  flutter_doc_scanner: ^0.0.18
   flutter_expandable_fab: ^2.5.2
-  path: ^1.9.1
-  path_provider: ^2.1.5
   pdfx: ^2.9.2
 
 dev_dependencies:
