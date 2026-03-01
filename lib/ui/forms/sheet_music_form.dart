@@ -3,8 +3,8 @@ import 'dart:io' show File;
 import 'package:flutter/material.dart';
 import 'package:tfg/models/sheet_music.dart';
 import 'package:tfg/models/tag.dart';
+import 'package:tfg/ui/common/image_viewer.dart';
 import 'package:tfg/utils.dart';
-import 'package:pdfx/pdfx.dart';
 
 class SheetMusicForm extends StatefulWidget {
   const SheetMusicForm({super.key, this.sheetMusic, this.file});
@@ -141,11 +141,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
           ),
           if (widget.file != null)
             Expanded(
-              child: PdfViewPinch(
-                controller: PdfControllerPinch(
-                  document: PdfDocument.openFile(widget.file!.path),
-                ),
-              ),
+              child: ImageViewer(file: widget.file!)
             ),
           ElevatedButton(
             onPressed: () {

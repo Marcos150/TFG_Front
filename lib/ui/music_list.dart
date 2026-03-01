@@ -1,5 +1,6 @@
 import 'dart:io' show File;
 
+import 'package:camera/camera.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:tfg/models/sheet_music.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:tfg/models/tag.dart';
 import 'package:tfg/ui/common/my_app_bar.dart';
 import 'package:tfg/ui/add_sheet_music_screen.dart';
+import 'package:tfg/ui/common/my_camera.dart';
 import 'package:tfg/utils.dart';
 
 class MusicList extends StatelessWidget {
@@ -90,8 +92,14 @@ class MusicList extends StatelessWidget {
               const SizedBox(width: 20),
               FloatingActionButton.small(
                 heroTag: null,
-                onPressed: () {
-                  showSnackbar('Escanear', context);
+                onPressed: () async {
+                  final cameras = await availableCameras();
+                  final firstCamera = cameras.first;
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (context) => MyCamera(camera: firstCamera),
+                    ),
+                  );
                 },
                 child: const Icon(Icons.add_a_photo),
               ),
