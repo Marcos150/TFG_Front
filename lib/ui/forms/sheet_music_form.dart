@@ -1,4 +1,5 @@
 import 'dart:io' show File;
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:tfg/models/sheet_music.dart';
@@ -30,6 +31,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
     return widget.sheetMusic?.tags.contains(tags[index]) ?? false;
   }, growable: true);
   final tagController = TextEditingController();
+  Uint8List? _imgMat;
 
   @override
   Widget build(BuildContext context) {
@@ -92,6 +94,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                   selected: _value[index],
                   onSelected: (bool selected) {
                     setState(() {
+                      _imgMat = detectSheetMusic(widget.file!);
                       _value[index] = !_value[index];
                     });
                   },
@@ -141,7 +144,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
           ),
           if (widget.file != null)
             Expanded(
-              child: ImageViewer(file: widget.file!)
+              child: _imgMat == null ? ImageViewer(file: widget.file!) : Image.memory(_imgMat!)
             ),
           ElevatedButton(
             onPressed: () {

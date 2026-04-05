@@ -64,10 +64,9 @@ class MusicList extends StatelessWidget {
               FloatingActionButton.small(
                 heroTag: null,
                 onPressed: () async {
-                  final FilePickerResult? result = await FilePicker.platform
-                      .pickFiles(
+                  final FilePickerResult? result = await FilePicker.pickFiles(
                         type: FileType.custom,
-                        allowedExtensions: ['pdf'],
+                        allowedExtensions: ['pdf', 'jpeg', 'jpg', 'png'],
                       );
                   if (result != null) {
                     final File file = File(result.files.single.path!);
@@ -96,7 +95,7 @@ class MusicList extends StatelessWidget {
                     Navigator.of(context).push(
                       MaterialPageRoute<void>(
                         builder: (context) => AddSheetMusicScreen(
-                          file: File.fromUri(Uri.parse(test.pdfUri)),
+                          file: File.fromUri(Uri.parse(test.images[0])),
                         ),
                       ),
                     );

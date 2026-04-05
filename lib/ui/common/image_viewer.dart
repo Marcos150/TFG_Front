@@ -18,7 +18,7 @@ class ImageViewer extends StatelessWidget {
         ),
       );
     }
-    else if (getFileExtension(file) == 'jpg') {
+    else if (getFileExtension(file) == 'jpg' || getFileExtension(file) == 'png') {
       return Image.file(File(file.path));
     }
 
