@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:tfg/models/sheet_music.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:tfg/models/tag.dart';
+import 'package:tfg/server/sheet_music_service.dart';
 import 'package:tfg/ui/common/my_app_bar.dart';
 import 'package:tfg/ui/add_sheet_music_screen.dart';
 import 'package:tfg/utils.dart';
@@ -27,11 +28,11 @@ class MusicList extends StatelessWidget {
           itemBuilder: (_, int index) {
             return ListTile(
               leading: const CircleAvatar(),
-              title: Text(sheetMusic[index].name),
+              title: Text(sheetMusic[index].title),
               trailing: IconButton(
                 onPressed: () {
                   showSnackbar(
-                    'Partitura ${sheetMusic[index].name} borrada',
+                    'Partitura ${sheetMusic[index].title} borrada',
                     context,
                   );
                 },
@@ -102,6 +103,21 @@ class MusicList extends StatelessWidget {
                   }
                 },
                 child: const Icon(Icons.add_a_photo),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              const Text('Pruebas'),
+              const SizedBox(width: 20),
+              FloatingActionButton.small(
+                heroTag: null,
+                onPressed: () async {
+                  final music = await fetchSheetMusic(1);
+                  final title = music.title;
+                  print('AAAAAAAAAAAAAAAAAAAAA: $title');
+                },
+                child: const Icon(Icons.wheelchair_pickup),
               ),
             ],
           ),

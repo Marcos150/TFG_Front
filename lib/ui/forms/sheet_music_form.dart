@@ -48,7 +48,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                     vertical: 16,
                   ),
                   child: TextFormField(
-                    initialValue: widget.sheetMusic?.name,
+                    initialValue: widget.sheetMusic?.title,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Título',
