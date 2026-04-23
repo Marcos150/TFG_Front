@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tfg/models/sheet_music.dart';
 import 'package:tfg/models/tag.dart';
+import 'package:tfg/server/sheet_music_service.dart';
 import 'package:tfg/ui/common/image_viewer.dart';
 import 'package:tfg/utils.dart';
 
@@ -30,6 +31,12 @@ class SheetMusicFormState extends State<SheetMusicForm> {
   late final List<bool> _value = List.generate(tags.length, (int index) {
     return widget.sheetMusic?.tags.contains(tags[index]) ?? false;
   }, growable: true);
+  late final titleController = TextEditingController(
+    text: widget.sheetMusic?.title,
+  );
+  late final authorController = TextEditingController(
+    text: widget.sheetMusic?.author,
+  );
   final tagController = TextEditingController();
   Uint8List? _imgMat;
 
@@ -48,7 +55,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                     vertical: 16,
                   ),
                   child: TextFormField(
-                    initialValue: widget.sheetMusic?.title,
+                    controller: titleController,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Título',
@@ -69,7 +76,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                     vertical: 16,
                   ),
                   child: TextFormField(
-                    initialValue: widget.sheetMusic?.author,
+                    controller: authorController,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Autor',
@@ -144,15 +151,30 @@ class SheetMusicFormState extends State<SheetMusicForm> {
           ),
           if (widget.file != null)
             Expanded(
-              child: _imgMat == null ? ImageViewer(file: widget.file!) : Image.memory(_imgMat!)
+              child: _imgMat == null
+                  ? ImageViewer(file: widget.file!)
+                  : Image.memory(_imgMat!),
             ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               if (_formKey.currentState!.validate()) {
-                showSnackbar('Creando partitura...', context);
+                final sheetMusic = SheetMusic(
+                  titleController.text,
+                  authorController.text,
+                );
+                try {
+                  await createSheetMusic(sheetMusic);
+                  showSnackbar('Partitura guardada', context);
+                  Navigator.pop(context, sheetMusic);
+                } catch (e) {
+                  showSnackbar(
+                    'Error al guardar la partitura. Inténtalo más tarde.',
+                    context,
+                  );
+                }
               }
             },
-            child: const Text('Submit'),
+            child: const Text('Guardar'),
           ),
         ],
       ),

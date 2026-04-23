@@ -19,9 +19,11 @@ class MusicList extends StatefulWidget {
 class _MusicListState extends State<MusicList> {
   late Future<List<SheetMusic>> sheetMusic;
 
+  void _getSheetMusic() => sheetMusic = getAllSheetMusic();
+
   @override
   void initState() {
-    sheetMusic = getAllSheetMusic();
+    _getSheetMusic();
     super.initState();
   }
 
@@ -49,13 +51,15 @@ class _MusicListState extends State<MusicList> {
                       icon: const Icon(Icons.delete),
                     ),
                     onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (context) => AddSheetMusicScreen(
-                            sheetMusic: snapshot.data![index],
-                          ),
-                        ),
-                      );
+                      Navigator.of(context)
+                          .push(
+                            MaterialPageRoute<SheetMusic>(
+                              builder: (context) => AddSheetMusicScreen(
+                                sheetMusic: snapshot.data![index],
+                              ),
+                            ),
+                          )
+                          .then((res) => setState(() => _getSheetMusic()));
                     },
                   );
                 },
@@ -87,11 +91,14 @@ class _MusicListState extends State<MusicList> {
                   );
                   if (result != null) {
                     final File file = File(result.files.single.path!);
-                    Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (context) => AddSheetMusicScreen(file: file),
-                      ),
-                    );
+                    Navigator.of(context)
+                        .push(
+                          MaterialPageRoute<SheetMusic>(
+                            builder: (context) =>
+                                AddSheetMusicScreen(file: file),
+                          ),
+                        )
+                        .then((res) => setState(() => _getSheetMusic()));
                   } else {
                     showSnackbar('Cancelado', context);
                   }
@@ -109,13 +116,15 @@ class _MusicListState extends State<MusicList> {
                 onPressed: () async {
                   final test = await scanAsPdf();
                   if (test != null) {
-                    Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (context) => AddSheetMusicScreen(
-                          file: File.fromUri(Uri.parse(test.images[0])),
-                        ),
-                      ),
-                    );
+                    Navigator.of(context)
+                        .push(
+                          MaterialPageRoute<SheetMusic>(
+                            builder: (context) => AddSheetMusicScreen(
+                              file: File.fromUri(Uri.parse(test.images[0])),
+                            ),
+                          ),
+                        )
+                        .then((res) => setState(() => _getSheetMusic()));
                   }
                 },
                 child: const Icon(Icons.add_a_photo),
