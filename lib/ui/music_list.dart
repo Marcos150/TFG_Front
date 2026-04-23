@@ -4,56 +4,72 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:tfg/models/sheet_music.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
-import 'package:tfg/models/tag.dart';
 import 'package:tfg/server/sheet_music_service.dart';
 import 'package:tfg/ui/common/my_app_bar.dart';
 import 'package:tfg/ui/add_sheet_music_screen.dart';
 import 'package:tfg/utils.dart';
 
-class MusicList extends StatelessWidget {
+class MusicList extends StatefulWidget {
   const MusicList({super.key});
 
-  static const List<SheetMusic> sheetMusic = [
-    SheetMusic('Amparito Roca', 'Jaime Texidor', tags: [Tag('Pasodoble')]),
-    SheetMusic('Danza Húngara Nº5', 'Johannes Brahms'),
-    SheetMusic('Danubio Azul', 'Johann Strauss II', tags: [Tag('Vals')]),
-  ];
+  @override
+  State<MusicList> createState() => _MusicListState();
+}
+
+class _MusicListState extends State<MusicList> {
+  late Future<List<SheetMusic>> sheetMusic;
+
+  @override
+  void initState() {
+    sheetMusic = getAllSheetMusic();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const MyAppBar(title: 'Mis partituras'),
       body: Center(
-        child: ListView.builder(
-          itemBuilder: (_, int index) {
-            return ListTile(
-              leading: const CircleAvatar(),
-              title: Text(sheetMusic[index].title),
-              trailing: IconButton(
-                onPressed: () {
-                  showSnackbar(
-                    'Partitura ${sheetMusic[index].title} borrada',
-                    context,
+        child: FutureBuilder(
+          future: sheetMusic,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return ListView.builder(
+                itemBuilder: (_, int index) {
+                  return ListTile(
+                    leading: const CircleAvatar(),
+                    title: Text(snapshot.data![index].title),
+                    trailing: IconButton(
+                      onPressed: () {
+                        showSnackbar(
+                          'Partitura ${snapshot.data![index].title} borrada',
+                          context,
+                        );
+                      },
+                      icon: const Icon(Icons.delete),
+                    ),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (context) => AddSheetMusicScreen(
+                            sheetMusic: snapshot.data![index],
+                          ),
+                        ),
+                      );
+                    },
                   );
                 },
-                icon: const Icon(Icons.delete),
-              ),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (context) =>
-                        AddSheetMusicScreen(sheetMusic: sheetMusic[index]),
-                  ),
-                );
-              },
-            );
+                itemCount: snapshot.data!.length,
+              );
+            } else {
+              return const CircularProgressIndicator();
+            }
           },
-          itemCount: sheetMusic.length,
         ),
       ),
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: ExpandableFab(
-        key: key,
+        key: widget.key,
         type: ExpandableFabType.up,
         childrenAnimation: ExpandableFabAnimation.none,
         distance: 70,
@@ -66,9 +82,9 @@ class MusicList extends StatelessWidget {
                 heroTag: null,
                 onPressed: () async {
                   final FilePickerResult? result = await FilePicker.pickFiles(
-                        type: FileType.custom,
-                        allowedExtensions: ['pdf', 'jpeg', 'jpg', 'png'],
-                      );
+                    type: FileType.custom,
+                    allowedExtensions: ['pdf', 'jpeg', 'jpg', 'png'],
+                  );
                   if (result != null) {
                     final File file = File(result.files.single.path!);
                     Navigator.of(context).push(
