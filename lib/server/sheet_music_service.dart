@@ -38,9 +38,15 @@ Future<List<SheetMusic>> getAllSheetMusic() async {
 
 Future<SheetMusic> createSheetMusic(SheetMusic sheetMusic, File file) async {
   final request = http.MultipartRequest('POST', Uri.parse(_url));
-  request.fields.addAll(
-    sheetMusic.toJson().map((key, value) => MapEntry(key, value.toString())),
-  );
+  final Map<String, dynamic> data = sheetMusic.toJson();
+  data.forEach((key, value) {
+    //TODO: Maybe the if else is not necesary, we can jsonEncode all
+    if (value is List || value is Map) {
+      request.fields[key] = jsonEncode(value);
+    } else {
+      request.fields[key] = value.toString();
+    }
+  });
   request.files.add(await http.MultipartFile.fromPath('file', file.path));
   request.headers.addAll(headersSend);
   final response = await request.send();
@@ -74,9 +80,12 @@ Future<File> getSheetMusicFile(int id) async {
   final response = await http.get(Uri.parse('$_url/$id/file'));
 
   if (response.statusCode == 200) {
-    final extension = response.headers['content-type']?.split('/').last ?? 'pdf';
+    final extension =
+        response.headers['content-type']?.split('/').last ?? 'pdf';
     final bytes = response.bodyBytes;
-    final file = File('${Directory.systemTemp.path}/sheet_music_$id.$extension');
+    final file = File(
+      '${Directory.systemTemp.path}/sheet_music_$id.$extension',
+    );
     await file.writeAsBytes(bytes);
     return file;
   } else {

@@ -127,9 +127,9 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                   selected: _tags.values.toList()[index],
                   onSelected: (bool selected) {
                     setState(() {
-                      _imgMat = detectSheetMusic(_file!);
-                      _tags.values.toList()[index] = !_tags.values
-                          .toList()[index];
+                      //_imgMat = detectSheetMusic(_file!);
+                      _tags[_tags.keys.toList()[index]] =
+                          !_tags[_tags.keys.toList()[index]]!;
                     });
                   },
                 );
@@ -196,6 +196,10 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                     final sheetMusic = SheetMusic(
                       _titleController.text,
                       _authorController.text,
+                      tags: _tags.entries
+                          .where((entry) => entry.value)
+                          .map((entry) => entry.key)
+                          .toList(),
                     );
                     await createSheetMusic(sheetMusic, _file!);
                   }
