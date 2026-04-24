@@ -29,4 +29,10 @@ class _ImageViewerState extends State<ImageViewer> {
 
     return Text(getFileExtension(widget.file));
   }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 }

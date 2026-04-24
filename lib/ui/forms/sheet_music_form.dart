@@ -30,17 +30,19 @@ class SheetMusicForm extends StatefulWidget {
 class SheetMusicFormState extends State<SheetMusicForm> {
   final _formKey = GlobalKey<FormState>();
 
-  late final List<Tag> tags = widget.sheetMusic?.tags ?? [];
-  late final List<bool> _value = List.generate(tags.length, (int index) {
-    return widget.sheetMusic?.tags.contains(tags[index]) ?? false;
-  });
-  late final titleController = TextEditingController(
+  late final Map<Tag, bool> _tags = Map.from(
+    widget.sheetMusic?.tags.asMap().map(
+          (key, value) => MapEntry(value, true),
+        ) ??
+        {},
+  );
+  late final _titleController = TextEditingController(
     text: widget.sheetMusic?.title,
   );
-  late final authorController = TextEditingController(
+  late final _authorController = TextEditingController(
     text: widget.sheetMusic?.author,
   );
-  final tagController = TextEditingController();
+  final _tagController = TextEditingController();
   Uint8List? _imgMat;
   late File? _file = widget.file;
 
@@ -55,9 +57,8 @@ class SheetMusicFormState extends State<SheetMusicForm> {
     getAllTags().then(
       (value) => setState(() {
         for (final tag in value) {
-          if (!tags.contains(tag)) {
-            tags.add(tag);
-            _value.add(false);
+          if (!_tags.keys.contains(tag)) {
+            _tags.addAll({tag: false});
           }
         }
       }),
@@ -80,7 +81,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                     vertical: 16,
                   ),
                   child: TextFormField(
-                    controller: titleController,
+                    controller: _titleController,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Título',
@@ -101,7 +102,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                     vertical: 16,
                   ),
                   child: TextFormField(
-                    controller: authorController,
+                    controller: _authorController,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Autor',
@@ -120,14 +121,15 @@ class SheetMusicFormState extends State<SheetMusicForm> {
           Wrap(
             spacing: 5.0,
             children: [
-              ...List<Widget>.generate(tags.length, (int index) {
+              ...List<Widget>.generate(_tags.length, (int index) {
                 return ChoiceChip(
-                  label: Text(tags[index].name),
-                  selected: _value[index],
+                  label: Text(_tags.keys.toList()[index].name),
+                  selected: _tags.values.toList()[index],
                   onSelected: (bool selected) {
                     setState(() {
                       _imgMat = detectSheetMusic(_file!);
-                      _value[index] = !_value[index];
+                      _tags.values.toList()[index] = !_tags.values
+                          .toList()[index];
                     });
                   },
                 );
@@ -140,7 +142,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                       return AlertDialog(
                         title: const Text('Añadir etiqueta'),
                         content: TextField(
-                          controller: tagController,
+                          controller: _tagController,
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             labelText: 'Nombre',
@@ -151,18 +153,17 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                             child: const Text('Cancelar'),
                             onPressed: () {
                               Navigator.of(context).pop();
-                              tagController.clear();
+                              _tagController.clear();
                             },
                           ),
                           TextButton(
                             child: const Text('Añadir'),
                             onPressed: () {
                               setState(() {
-                                tags.add(Tag(tagController.text));
-                                _value.add(false);
+                                _tags.addAll({Tag(_tagController.text): false});
                               });
                               Navigator.of(context).pop();
-                              tagController.clear();
+                              _tagController.clear();
                             },
                           ),
                         ],
@@ -186,15 +187,15 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                 try {
                   if (widget.isEditing) {
                     final sheetMusic = SheetMusic(
-                      titleController.text,
-                      authorController.text,
+                      _titleController.text,
+                      _authorController.text,
                       id: widget.sheetMusic!.id,
                     );
                     await editSheetMusic(sheetMusic);
                   } else {
                     final sheetMusic = SheetMusic(
-                      titleController.text,
-                      authorController.text,
+                      _titleController.text,
+                      _authorController.text,
                     );
                     await createSheetMusic(sheetMusic, _file!);
                   }
@@ -213,5 +214,13 @@ class SheetMusicFormState extends State<SheetMusicForm> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _authorController.dispose();
+    _tagController.dispose();
+    super.dispose();
   }
 }

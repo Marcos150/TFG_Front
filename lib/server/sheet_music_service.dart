@@ -74,8 +74,9 @@ Future<File> getSheetMusicFile(int id) async {
   final response = await http.get(Uri.parse('$_url/$id/file'));
 
   if (response.statusCode == 200) {
+    final extension = response.headers['content-type']?.split('/').last ?? 'pdf';
     final bytes = response.bodyBytes;
-    final file = File('${Directory.systemTemp.path}/sheet_music_$id.pdf');
+    final file = File('${Directory.systemTemp.path}/sheet_music_$id.$extension');
     await file.writeAsBytes(bytes);
     return file;
   } else {
