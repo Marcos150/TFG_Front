@@ -42,9 +42,16 @@ class SheetMusicFormState extends State<SheetMusicForm> {
   );
   final tagController = TextEditingController();
   Uint8List? _imgMat;
+  late File? _file = widget.file;
 
   @override
   void initState() {
+    if (widget.sheetMusic != null) {
+      getSheetMusicFile(
+        widget.sheetMusic!.id!,
+      ).then((value) => setState(() => _file = value));
+    }
+
     getAllTags().then(
       (value) => setState(() {
         for (final tag in value) {
@@ -119,7 +126,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                   selected: _value[index],
                   onSelected: (bool selected) {
                     setState(() {
-                      _imgMat = detectSheetMusic(widget.file!);
+                      _imgMat = detectSheetMusic(_file!);
                       _value[index] = !_value[index];
                     });
                   },
@@ -167,10 +174,10 @@ class SheetMusicFormState extends State<SheetMusicForm> {
               ),
             ],
           ),
-          if (widget.file != null)
+          if (_file != null)
             Expanded(
               child: _imgMat == null
-                  ? ImageViewer(file: widget.file!)
+                  ? ImageViewer(file: _file!)
                   : Image.memory(_imgMat!),
             ),
           ElevatedButton(
@@ -189,7 +196,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                       titleController.text,
                       authorController.text,
                     );
-                    await createSheetMusic(sheetMusic, widget.file!);
+                    await createSheetMusic(sheetMusic, _file!);
                   }
                   showSnackbar('Partitura guardada', context);
                   Navigator.pop(context);

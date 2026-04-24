@@ -69,3 +69,16 @@ Future<SheetMusic> editSheetMusic(SheetMusic sheetMusic) async {
     throw Exception('Failed to create sheet music.');
   }
 }
+
+Future<File> getSheetMusicFile(int id) async {
+  final response = await http.get(Uri.parse('$_url/$id/file'));
+
+  if (response.statusCode == 200) {
+    final bytes = response.bodyBytes;
+    final file = File('${Directory.systemTemp.path}/sheet_music_$id.pdf');
+    await file.writeAsBytes(bytes);
+    return file;
+  } else {
+    throw Exception('Failed to load sheet music file');
+  }
+}
