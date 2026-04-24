@@ -1,16 +1,14 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:tfg/models/sheet_music.dart';
+import 'common_service.dart';
 
-const String _url = 'http://10.0.2.2:8000/api/sheet-music';
-//const String _url = 'http://127.0.0.1:8000/api/sheet-music';
-const _headersReceive = {'Accept': 'application/json'};
-const _headersSend = {'Content-Type': 'application/json; charset=UTF-8'};
+const _url = '$urlCommon/sheet-music';
 
 Future<SheetMusic> fetchSheetMusic(int id) async {
   final response = await http.get(
     Uri.parse('$_url/$id'),
-    headers: _headersReceive,
+    headers: headersReceive,
   );
 
   if (response.statusCode == 200) {
@@ -23,7 +21,7 @@ Future<SheetMusic> fetchSheetMusic(int id) async {
 }
 
 Future<List<SheetMusic>> getAllSheetMusic() async {
-  final response = await http.get(Uri.parse(_url), headers: _headersReceive);
+  final response = await http.get(Uri.parse(_url), headers: headersReceive);
 
   if (response.statusCode == 200) {
     final List<dynamic> list = jsonDecode(response.body);
@@ -40,11 +38,27 @@ Future<List<SheetMusic>> getAllSheetMusic() async {
 Future<SheetMusic> createSheetMusic(SheetMusic sheetMusic) async {
   final response = await http.post(
     Uri.parse(_url),
-    headers: _headersSend,
+    headers: headersSend,
     body: jsonEncode(sheetMusic),
   );
 
   if (response.statusCode == 201) {
+    return SheetMusic.fromJson(
+      jsonDecode(response.body) as Map<String, dynamic>,
+    );
+  } else {
+    throw Exception('Failed to create sheet music.');
+  }
+}
+
+Future<SheetMusic> editSheetMusic(SheetMusic sheetMusic) async {
+  final response = await http.put(
+    Uri.parse('$_url/${sheetMusic.id}'),
+    headers: headersSend,
+    body: jsonEncode(sheetMusic),
+  );
+
+  if (response.statusCode == 200) {
     return SheetMusic.fromJson(
       jsonDecode(response.body) as Map<String, dynamic>,
     );

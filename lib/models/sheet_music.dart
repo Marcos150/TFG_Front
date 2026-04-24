@@ -4,11 +4,13 @@ part 'sheet_music.g.dart';
 
 @JsonSerializable()
 class SheetMusic {
+  @JsonKey(required: true)
+  final int? id;
   final String title;
   final String author;
   final List<Tag> tags;
 
-  const SheetMusic(this.title, this.author, {this.tags = const []});
+  const SheetMusic(this.title, this.author, {this.id, this.tags = const []});
 
   factory SheetMusic.fromJson(Map<String, dynamic> json) => _$SheetMusicFromJson(json);
 

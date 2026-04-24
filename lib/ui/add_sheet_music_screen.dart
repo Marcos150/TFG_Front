@@ -15,7 +15,13 @@ class AddSheetMusicScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const MyAppBar(title: 'Añadir partitura'),
-      body: SafeArea(child: SheetMusicForm(sheetMusic: sheetMusic, file: file)),
+      body: SafeArea(
+        child: SheetMusicForm(
+          sheetMusic: sheetMusic,
+          file: file,
+          isEditing: sheetMusic != null,
+        ),
+      ),
     );
   }
 }

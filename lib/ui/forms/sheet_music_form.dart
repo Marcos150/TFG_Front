@@ -9,10 +9,16 @@ import 'package:tfg/ui/common/image_viewer.dart';
 import 'package:tfg/utils.dart';
 
 class SheetMusicForm extends StatefulWidget {
-  const SheetMusicForm({super.key, this.sheetMusic, this.file});
+  const SheetMusicForm({
+    super.key,
+    this.sheetMusic,
+    this.file,
+    this.isEditing = false,
+  });
 
   final SheetMusic? sheetMusic;
   final File? file;
+  final bool isEditing;
 
   @override
   SheetMusicFormState createState() {
@@ -158,14 +164,23 @@ class SheetMusicFormState extends State<SheetMusicForm> {
           ElevatedButton(
             onPressed: () async {
               if (_formKey.currentState!.validate()) {
-                final sheetMusic = SheetMusic(
-                  titleController.text,
-                  authorController.text,
-                );
                 try {
-                  await createSheetMusic(sheetMusic);
+                  if (widget.isEditing) {
+                    final sheetMusic = SheetMusic(
+                      titleController.text,
+                      authorController.text,
+                      id: widget.sheetMusic!.id,
+                    );
+                    await editSheetMusic(sheetMusic);
+                  } else {
+                    final sheetMusic = SheetMusic(
+                      titleController.text,
+                      authorController.text,
+                    );
+                    await createSheetMusic(sheetMusic);
+                  }
                   showSnackbar('Partitura guardada', context);
-                  Navigator.pop(context, sheetMusic);
+                  Navigator.pop(context);
                 } catch (e) {
                   showSnackbar(
                     'Error al guardar la partitura. Inténtalo más tarde.',
