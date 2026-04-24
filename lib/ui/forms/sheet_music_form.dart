@@ -30,7 +30,7 @@ class SheetMusicForm extends StatefulWidget {
 class SheetMusicFormState extends State<SheetMusicForm> {
   final _formKey = GlobalKey<FormState>();
 
-  late final List<Tag> tags = widget.sheetMusic!.tags;
+  late final List<Tag> tags = widget.sheetMusic?.tags ?? [];
   late final List<bool> _value = List.generate(tags.length, (int index) {
     return widget.sheetMusic?.tags.contains(tags[index]) ?? false;
   });
@@ -189,7 +189,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                       titleController.text,
                       authorController.text,
                     );
-                    await createSheetMusic(sheetMusic);
+                    await createSheetMusic(sheetMusic, widget.file!);
                   }
                   showSnackbar('Partitura guardada', context);
                   Navigator.pop(context);

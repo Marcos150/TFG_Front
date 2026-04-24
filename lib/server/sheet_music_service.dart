@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:tfg/models/sheet_music.dart';
 import 'common_service.dart';
@@ -35,16 +36,18 @@ Future<List<SheetMusic>> getAllSheetMusic() async {
   }
 }
 
-Future<SheetMusic> createSheetMusic(SheetMusic sheetMusic) async {
-  final response = await http.post(
-    Uri.parse(_url),
-    headers: headersSend,
-    body: jsonEncode(sheetMusic),
+Future<SheetMusic> createSheetMusic(SheetMusic sheetMusic, File file) async {
+  final request = http.MultipartRequest('POST', Uri.parse(_url));
+  request.fields.addAll(
+    sheetMusic.toJson().map((key, value) => MapEntry(key, value.toString())),
   );
+  request.files.add(await http.MultipartFile.fromPath('file', file.path));
+  request.headers.addAll(headersSend);
+  final response = await request.send();
 
   if (response.statusCode == 201) {
     return SheetMusic.fromJson(
-      jsonDecode(response.body) as Map<String, dynamic>,
+      jsonDecode(await response.stream.bytesToString()) as Map<String, dynamic>,
     );
   } else {
     throw Exception('Failed to create sheet music.');
