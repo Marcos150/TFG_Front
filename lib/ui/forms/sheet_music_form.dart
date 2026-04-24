@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:tfg/models/sheet_music.dart';
 import 'package:tfg/models/tag.dart';
 import 'package:tfg/server/sheet_music_service.dart';
+import 'package:tfg/server/tag_service.dart';
 import 'package:tfg/ui/common/image_viewer.dart';
 import 'package:tfg/utils.dart';
 
@@ -29,14 +30,10 @@ class SheetMusicForm extends StatefulWidget {
 class SheetMusicFormState extends State<SheetMusicForm> {
   final _formKey = GlobalKey<FormState>();
 
-  final List<Tag> tags = [
-    const Tag('Pasodoble'),
-    const Tag('Vals'),
-    const Tag('Rock'),
-  ];
+  late final List<Tag> tags = widget.sheetMusic!.tags;
   late final List<bool> _value = List.generate(tags.length, (int index) {
     return widget.sheetMusic?.tags.contains(tags[index]) ?? false;
-  }, growable: true);
+  });
   late final titleController = TextEditingController(
     text: widget.sheetMusic?.title,
   );
@@ -45,6 +42,21 @@ class SheetMusicFormState extends State<SheetMusicForm> {
   );
   final tagController = TextEditingController();
   Uint8List? _imgMat;
+
+  @override
+  void initState() {
+    getAllTags().then(
+      (value) => setState(() {
+        for (final tag in value) {
+          if (!tags.contains(tag)) {
+            tags.add(tag);
+            _value.add(false);
+          }
+        }
+      }),
+    );
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
