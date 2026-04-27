@@ -7,6 +7,7 @@ import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:tfg/server/sheet_music_service.dart';
 import 'package:tfg/ui/common/my_app_bar.dart';
 import 'package:tfg/ui/add_sheet_music_screen.dart';
+import 'package:tfg/ui/practice_screen.dart';
 import 'package:tfg/utils.dart';
 
 class MusicList extends StatefulWidget {
@@ -18,8 +19,10 @@ class MusicList extends StatefulWidget {
 
 class _MusicListState extends State<MusicList> {
   late Future<List<SheetMusic>> sheetMusic;
+  bool hasInternet = true;
 
-  void _getSheetMusic() => sheetMusic = getAllSheetMusic();
+  void _getSheetMusic() =>
+      sheetMusic = getAllSheetMusic().catchError((_) => hasInternet = false);
 
   @override
   void initState() {
@@ -35,32 +38,52 @@ class _MusicListState extends State<MusicList> {
         child: FutureBuilder(
           future: sheetMusic,
           builder: (context, snapshot) {
-            if (snapshot.hasData) {
+            if (!hasInternet) {
+              return const Text(
+                'Error al conectar con el servidor. Comprueba tu conexión a internet.',
+              );
+            } else if (snapshot.hasData) {
               return ListView.builder(
                 itemBuilder: (_, int index) {
                   return ListTile(
                     leading: const CircleAvatar(),
                     title: Text(snapshot.data![index].title),
-                    trailing: IconButton(
-                      onPressed: () {
-                        showSnackbar(
-                          'Partitura ${snapshot.data![index].title} borrada',
-                          context,
-                        );
-                      },
-                      icon: const Icon(Icons.delete),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            Navigator.of(context)
+                                .push(
+                                  MaterialPageRoute<SheetMusic>(
+                                    builder: (context) => AddSheetMusicScreen(
+                                      sheetMusic: snapshot.data![index],
+                                    ),
+                                  ),
+                                )
+                                .then(
+                                  (res) => setState(() => _getSheetMusic()),
+                                );
+                          },
+                          icon: const Icon(Icons.edit),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            showSnackbar(
+                              'Partitura ${snapshot.data![index].title} borrada',
+                              context,
+                            );
+                          },
+                          icon: const Icon(Icons.delete),
+                        ),
+                      ],
                     ),
-                    onTap: () {
-                      Navigator.of(context)
-                          .push(
-                            MaterialPageRoute<SheetMusic>(
-                              builder: (context) => AddSheetMusicScreen(
-                                sheetMusic: snapshot.data![index],
-                              ),
-                            ),
-                          )
-                          .then((res) => setState(() => _getSheetMusic()));
-                    },
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<SheetMusic>(
+                        builder: (context) =>
+                            PracticeScreen(sheetMusic: snapshot.data![index]),
+                      ),
+                    ),
                   );
                 },
                 itemCount: snapshot.data!.length,
@@ -128,21 +151,6 @@ class _MusicListState extends State<MusicList> {
                   }
                 },
                 child: const Icon(Icons.add_a_photo),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              const Text('Pruebas'),
-              const SizedBox(width: 20),
-              FloatingActionButton.small(
-                heroTag: null,
-                onPressed: () async {
-                  final music = await fetchSheetMusic(1);
-                  final title = music.title;
-                  print('AAAAAAAAAAAAAAAAAAAAA: $title');
-                },
-                child: const Icon(Icons.wheelchair_pickup),
               ),
             ],
           ),
