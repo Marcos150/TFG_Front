@@ -8,7 +8,7 @@ import 'package:tfg/server/sheet_music_service.dart';
 import 'package:tfg/ui/common/my_app_bar.dart';
 import 'package:tfg/ui/add_sheet_music_screen.dart';
 import 'package:tfg/ui/practice_screen.dart';
-import 'package:tfg/utils.dart';
+import 'package:tfg/utils/utils.dart';
 
 class MusicList extends StatefulWidget {
   const MusicList({super.key});
@@ -22,7 +22,10 @@ class _MusicListState extends State<MusicList> {
   bool hasInternet = true;
 
   void _getSheetMusic() =>
-      sheetMusic = getAllSheetMusic().catchError((_) => hasInternet = false);
+      sheetMusic = getAllSheetMusic().catchError((_) {
+        hasInternet = false;
+        return <SheetMusic>[];
+      });
 
   @override
   void initState() {
@@ -151,6 +154,29 @@ class _MusicListState extends State<MusicList> {
                   }
                 },
                 child: const Icon(Icons.add_a_photo),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              const Text('Metrónomo'),
+              const SizedBox(width: 20),
+              FloatingActionButton.small(
+                heroTag: null,
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<SheetMusic>(
+                      builder: (context) => const PracticeScreen(
+                        sheetMusic: SheetMusic(
+                          'Metrónomo',
+                          'Desconocido',
+                          id: -1,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+                child: const Icon(Icons.music_note),
               ),
             ],
           ),

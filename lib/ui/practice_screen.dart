@@ -108,7 +108,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
             if (sheetMusicFile == null)
               const CircularProgressIndicator()
             else
-              Expanded(child: ImageViewer(file: sheetMusicFile!)),
+              ImageViewer(file: sheetMusicFile!),
           ],
         ),
       ),

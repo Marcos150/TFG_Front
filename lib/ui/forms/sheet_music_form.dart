@@ -7,7 +7,8 @@ import 'package:tfg/models/tag.dart';
 import 'package:tfg/server/sheet_music_service.dart';
 import 'package:tfg/server/tag_service.dart';
 import 'package:tfg/ui/common/image_viewer.dart';
-import 'package:tfg/utils.dart';
+import 'package:tfg/ui/edit_measures_screen.dart';
+import 'package:tfg/utils/utils.dart';
 
 class SheetMusicForm extends StatefulWidget {
   const SheetMusicForm({
@@ -45,6 +46,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
   final _tagController = TextEditingController();
   Uint8List? _imgMat;
   late File? _file = widget.file;
+  late List<Rect> _measures = widget.sheetMusic?.measures.toList() ?? [];
 
   @override
   void initState() {
@@ -151,10 +153,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                         actions: <Widget>[
                           TextButton(
                             child: const Text('Cancelar'),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              _tagController.clear();
-                            },
+                            onPressed: () => Navigator.of(context).pop(),
                           ),
                           TextButton(
                             child: const Text('Añadir'),
@@ -163,7 +162,6 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                                 _tags.addAll({Tag(_tagController.text): false});
                               });
                               Navigator.of(context).pop();
-                              _tagController.clear();
                             },
                           ),
                         ],
@@ -175,12 +173,25 @@ class SheetMusicFormState extends State<SheetMusicForm> {
               ),
             ],
           ),
+          IconButton(
+            onPressed: () {
+              Navigator.of(context)
+                  .push(
+                    MaterialPageRoute(
+                      builder: (context) => EditMeasuresScreen(
+                        measures: _measures /*widget.sheetMusic!.measures*/,
+                        file: _file!,
+                      ),
+                    ),
+                  )
+                  .then((res) => setState(() => _measures = res));
+            },
+            icon: const Icon(Icons.edit),
+          ),
           if (_file != null)
-            Expanded(
-              child: _imgMat == null
-                  ? ImageViewer(file: _file!)
-                  : Image.memory(_imgMat!),
-            ),
+            _imgMat == null
+                ? ImageViewer(file: _file!, measures: _measures)
+                : Image.memory(_imgMat!),
           ElevatedButton(
             onPressed: () async {
               if (_formKey.currentState!.validate()) {
@@ -204,7 +215,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                     await createSheetMusic(sheetMusic, _file!);
                   }
                   showSnackbar('Partitura guardada', context);
-                  Navigator.pop(context);
+                  Navigator.of(context).pop();
                 } catch (e) {
                   showSnackbar(
                     'Error al guardar la partitura. Inténtalo más tarde.',

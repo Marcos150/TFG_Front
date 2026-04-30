@@ -2,12 +2,15 @@ import 'dart:io' show File;
 
 import 'package:flutter/material.dart';
 import 'package:pdfx/pdfx.dart';
-import 'package:tfg/utils.dart';
+import 'package:tfg/utils/utils.dart';
+
+import '../../utils/measure_painter.dart';
 
 class ImageViewer extends StatefulWidget {
-  const ImageViewer({super.key, required this.file});
+  const ImageViewer({super.key, required this.file, this.measures = const []});
 
   final File file;
+  final List<Rect> measures;
 
   @override
   State<ImageViewer> createState() => _ImageViewerState();
@@ -20,14 +23,36 @@ class _ImageViewerState extends State<ImageViewer> {
 
   @override
   Widget build(BuildContext context) {
-    if (getFileExtension(widget.file) == 'pdf') {
-      return PdfViewPinch(controller: _controller);
-    } else if (getFileExtension(widget.file) == 'jpg' ||
-        getFileExtension(widget.file) == 'png') {
-      return Image.file(File(widget.file.path));
+    Widget content = const Placeholder();
+    final extension = getFileExtension(widget.file);
+
+    if (extension == 'pdf') {
+      content = PdfViewPinch(controller: _controller);
+    } else if (extension == 'jpg' || extension == 'png') {
+      content = Image.file(
+        File(widget.file.path),
+        alignment: AlignmentGeometry.topCenter,
+      );
     }
 
-    return Text(getFileExtension(widget.file));
+    return Expanded(
+      child: Stack(
+        children: [
+          // The base layer (Image or PDF)
+          Positioned.fill(child: content),
+
+          // The overlay layer (Rectangles)
+          Positioned.fill(
+            child: IgnorePointer(
+              // Allows interaction with the PDF/Image underneath
+              child: CustomPaint(
+                painter: MeasurePainter(rects: widget.measures),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

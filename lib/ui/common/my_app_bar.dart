@@ -1,15 +1,25 @@
 import 'package:flutter/material.dart';
 
-import '../../utils.dart';
+import '../../utils/utils.dart';
 
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const MyAppBar({super.key, required this.title});
+  const MyAppBar({super.key, required this.title, this.onBackPressed});
 
   final String title;
+  final Function? onBackPressed;
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      leading: BackButton(
+        onPressed: () {
+          if (onBackPressed != null) {
+            onBackPressed!();
+          } else {
+            Navigator.of(context).pop();
+          }
+        },
+      ),
       centerTitle: true,
       title: Text(title),
       actions: [
