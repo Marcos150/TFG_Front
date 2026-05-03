@@ -35,23 +35,9 @@ class _ImageViewerState extends State<ImageViewer> {
       );
     }
 
-    return Expanded(
-      child: Stack(
-        children: [
-          // The base layer (Image or PDF)
-          Positioned.fill(child: content),
-
-          // The overlay layer (Rectangles)
-          Positioned.fill(
-            child: IgnorePointer(
-              // Allows interaction with the PDF/Image underneath
-              child: CustomPaint(
-                painter: MeasurePainter(rects: widget.measures),
-              ),
-            ),
-          ),
-        ],
-      ),
+    return CustomPaint(
+      foregroundPainter: MeasurePainter(widget.measures),
+      child: content,
     );
   }
 

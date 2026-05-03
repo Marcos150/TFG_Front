@@ -1,5 +1,4 @@
 import 'dart:io' show File;
-import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:tfg/models/sheet_music.dart';
@@ -44,7 +43,6 @@ class SheetMusicFormState extends State<SheetMusicForm> {
     text: widget.sheetMusic?.author,
   );
   final _tagController = TextEditingController();
-  Uint8List? _imgMat;
   late File? _file = widget.file;
   late List<Rect> _measures = widget.sheetMusic?.measures.toList() ?? [];
 
@@ -173,25 +171,36 @@ class SheetMusicFormState extends State<SheetMusicForm> {
               ),
             ],
           ),
-          IconButton(
-            onPressed: () {
-              Navigator.of(context)
-                  .push(
-                    MaterialPageRoute(
-                      builder: (context) => EditMeasuresScreen(
-                        measures: _measures /*widget.sheetMusic!.measures*/,
-                        file: _file!,
-                      ),
-                    ),
-                  )
-                  .then((res) => setState(() => _measures = res));
-            },
-            icon: const Icon(Icons.edit),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                onPressed: () {
+                  Navigator.of(context)
+                      .push(
+                        MaterialPageRoute(
+                          builder: (context) => EditMeasuresScreen(
+                            //TODO: Use widget ones
+                            measures: _measures /*widget.sheetMusic!.measures*/,
+                            file: _file!,
+                          ),
+                        ),
+                      )
+                      .then((res) => setState(() => _measures = res));
+                },
+                icon: const Icon(Icons.edit),
+              ),
+              IconButton(
+                onPressed: () async {
+                  _measures = await onnxTest(_file!);
+                  setState(() {});
+                },
+                icon: const Icon(Icons.smart_toy),
+              ),
+            ],
           ),
           if (_file != null)
-            _imgMat == null
-                ? ImageViewer(file: _file!, measures: _measures)
-                : Image.memory(_imgMat!),
+            Expanded(child: ImageViewer(file: _file!, measures: _measures)),
           ElevatedButton(
             onPressed: () async {
               if (_formKey.currentState!.validate()) {

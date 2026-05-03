@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 
 class MeasurePainter extends CustomPainter {
-  final List<Rect> rects;
+  final List<Rect> _rects;
 
-  MeasurePainter({required this.rects});
+  MeasurePainter(this._rects);
 
   MeasurePainter.fromOffsets(Offset start, Offset end)
-    : rects = [Rect.fromPoints(start, end)];
+    : _rects = [Rect.fromPoints(start, end)];
+
+  bool _isRectNotScaled(Rect rect) {
+    return rect.left < 1.0 &&
+        rect.top < 1.0 &&
+        rect.right <= 1.0 &&
+        rect.bottom <= 1.0;
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -19,12 +26,23 @@ class MeasurePainter extends CustomPainter {
       ..color = Colors.red.withAlpha(25)
       ..style = PaintingStyle.fill;
 
-    for (final rect in rects) {
-      canvas.drawRect(rect, paint);
-      canvas.drawRect(rect, fillPaint);
+    for (final rect in _rects) {
+      final isNotScaled = _isRectNotScaled(rect);
+
+      final scaledRect = isNotScaled
+          ? Rect.fromLTRB(
+              rect.left * size.width,
+              rect.top * size.height,
+              rect.right * size.width,
+              rect.bottom * size.height,
+            )
+          : rect;
+
+      canvas.drawRect(scaledRect, paint);
+      canvas.drawRect(scaledRect, fillPaint);
     }
   }
 
   @override
-  bool shouldRepaint(MeasurePainter oldDelegate) => oldDelegate.rects != rects;
+  bool shouldRepaint(MeasurePainter oldDelegate) => true;
 }

@@ -11,7 +11,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      leading: BackButton(
+      leading: Navigator.of(context).canPop() ? BackButton(
         onPressed: () {
           if (onBackPressed != null) {
             onBackPressed!();
@@ -19,7 +19,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
             Navigator.of(context).pop();
           }
         },
-      ),
+      ) : null,
       centerTitle: true,
       title: Text(title),
       actions: [

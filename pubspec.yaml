@@ -34,10 +34,11 @@ dependencies:
 
   flutter_doc_scanner: ^0.0.18
   flutter_expandable_fab: ^2.5.2
+  flutter_onnxruntime: ^1.7.0
   http: ^1.6.0
+  image: ^4.8.0
   json_annotation: ^4.11.0
   metronome: ^2.0.7
-  opencv_dart: ^2.2.1+4
   pdfx: ^2.9.2
 
 dev_dependencies:
@@ -72,6 +73,7 @@ flutter:
   assets:
     - assets/audio/vine-boom.wav
     - assets/audio/loud-vine-boom.wav
+    - assets/models/mobileNet.onnx
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

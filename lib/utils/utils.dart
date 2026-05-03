@@ -1,10 +1,10 @@
 import 'dart:io' show File;
-import 'dart:math' as math;
-import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_doc_scanner/flutter_doc_scanner.dart';
-import 'package:opencv_dart/opencv.dart' as cv;
+import 'package:flutter_onnxruntime/flutter_onnxruntime.dart';
+import 'package:image/image.dart' as img;
+import 'dart:typed_data';
 
 void showSnackbar(
   final String text,
@@ -31,89 +31,78 @@ Future<ImageScanResult?> scanAsPdf() async {
   return null;
 }
 
-Uint8List detectSheetMusic(final File file) {
-  final img = cv.imread(file.path, flags: cv.IMREAD_COLOR);
-  final gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY);
-  final binary = cv.adaptiveThreshold(
-      gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY_INV, 11, 2
-  );
+Uint8List _preprocessImage(img.Image image) {
+  return image.getBytes(order: img.ChannelOrder.rgb);
+}
 
-  final verticalKernel = cv.getStructuringElement(cv.MORPH_RECT, (1, 50));
-  final barLinesImg = cv.morphologyEx(binary, cv.MORPH_OPEN, verticalKernel);
-  final lines = cv.HoughLinesP(
-      barLinesImg, 1, 3.14 / 180, 50,
-      minLineLength: 50, maxLineGap: 10
-  );
+class OnnxRT {
+  static final OnnxRT _singleton = OnnxRT._internal();
+  final ort = OnnxRuntime();
+  late OrtSession session;
 
-  final List<cv.Rect> extractedBarLines = [];
-  for (int i = 0; i < lines.rows; i++) {
-    final line = lines.at<cv.Vec4i>(i, 0); // [x1, y1, x2, y2]
-    final x1 = line.val1;
-    final y1 = line.val2;
-    final y2 = line.val4;
-
-    final yTop = math.min(y1, y2);
-    final height = (y2 - y1).abs();
-
-    extractedBarLines.add(cv.Rect(x1, yTop, 0, height)); // Width is 0 for a line
+  Future<void> init() async {
+    //final options = OrtSessionOptions(interOpNumThreads: 1, intraOpNumThreads: 4, providers: [OrtProvider.XNNPACK]);
+    session = await ort.createSessionFromAsset('assets/models/mobileNet.onnx');
   }
 
-  extractedBarLines.sort((a, b) => a.x.compareTo(b.x));
-
-  double maxLineHeight = 0;
-  for (final line in extractedBarLines) {
-    if (line.height > maxLineHeight) maxLineHeight = line.height.toDouble();
+  factory OnnxRT() {
+    return _singleton;
   }
 
-  final List<cv.Rect> cleanBarLines = [];
-  for (final line in extractedBarLines) {
-    if (line.height > (maxLineHeight * 0.85)) {
-      cleanBarLines.add(line);
-    }
+  OnnxRT._internal() {
+    init();
   }
+}
 
-  final List<cv.Rect> measures = [];
+Future<List<Rect>> onnxTest(final File image) async {
+  final ort = OnnxRT();
+  final Uint8List imageBytes = await image.readAsBytes();
+  final img.Image? originalImage = img.decodeImage(imageBytes);
+  if (originalImage == null) return [];
 
-  for (int i = 0; i < cleanBarLines.length - 1; i++) {
-    final currentLine = cleanBarLines[i];
+  final int imageW = originalImage.width;
+  final int imageH = originalImage.height;
 
-    for (int j = i + 1; j < cleanBarLines.length; j++) {
-      final nextLine = cleanBarLines[j];
+  final Uint8List inputTensor = _preprocessImage(originalImage);
 
-      // Check if they are on the same line (Y-coordinates are within 30 pixels)
-      if ((currentLine.y - nextLine.y).abs() < 30) {
-        final measureWidth = nextLine.x - currentLine.x;
+  // specify input with data and shape
+  final inputs = {
+    'image_tensor:0': await OrtValue.fromList(
+      inputTensor,
+      [1, imageH, imageW, 3], // Shape: [Batch, H, W, C]d
+    ),
+  };
 
-        if (measureWidth > 50 && measureWidth <= img.cols * 0.75) {
-          final measureHeight = math.max(currentLine.height, nextLine.height);
-          measures.add(cv.Rect(currentLine.x, currentLine.y, measureWidth, measureHeight));
-          break;
-        }
+  final outputs = await ort.session.run(inputs);
+
+  // onnxruntime_flutter usually returns nested lists for multidimensional tensors
+  final List<dynamic>? boxesRaw = await outputs['detection_boxes:0']?.asList();
+  final List<dynamic>? scoresRaw = await outputs['detection_scores:0']
+      ?.asList();
+  final List<dynamic>? classesRaw = await outputs['detection_classes:0']
+      ?.asList();
+
+  final List<Rect> rects = [];
+
+  if (boxesRaw != null && scoresRaw != null && classesRaw != null) {
+    final List<dynamic> boxes = boxesRaw[0];
+    final List<dynamic> scores = scoresRaw[0];
+    final List<dynamic> classes = classesRaw[0];
+
+    for (int i = 0; i < boxes.length; i++) {
+      // The Python script checks for class == 1 and score > 0.5
+      if (classes[i] == 1 && scores[i] > 0.5) {
+        final List<dynamic> box = boxes[i];
+
+        final double y1 = box[0];
+        final double x1 = box[1];
+        final double y2 = box[2];
+        final double x2 = box[3];
+
+        rects.add(Rect.fromLTRB(x1, y1, x2, y2));
       }
     }
   }
 
-  final displayImg = img.clone();
-  for (int i = 0; i < measures.length; i++) {
-    final rect = measures[i];
-
-    cv.rectangle(
-        displayImg,
-        rect,
-        cv.Scalar(0, 255, 0, 0),
-        thickness: 2
-    );
-
-    cv.putText(
-        displayImg,
-        'M${i + 1}',
-        cv.Point(rect.x, rect.y - 10),
-        cv.FONT_HERSHEY_SIMPLEX,
-        0.5,
-        cv.Scalar(255, 0, 0, 0),
-        thickness: 1
-    );
-  }
-
-  return cv.imencode('.png', displayImg).$2;
+  return rects;
 }
