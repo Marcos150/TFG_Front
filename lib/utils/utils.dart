@@ -6,6 +6,8 @@ import 'package:flutter_onnxruntime/flutter_onnxruntime.dart';
 import 'package:image/image.dart' as img;
 import 'dart:typed_data';
 
+import 'package:tfg/models/measure.dart';
+
 void showSnackbar(
   final String text,
   final BuildContext context, {
@@ -54,7 +56,7 @@ class OnnxRT {
   }
 }
 
-Future<List<Rect>> onnxTest(final File image) async {
+Future<List<Measure>> onnxTest(final File image) async {
   final ort = OnnxRT();
   final Uint8List imageBytes = await image.readAsBytes();
   final img.Image? originalImage = img.decodeImage(imageBytes);
@@ -82,7 +84,7 @@ Future<List<Rect>> onnxTest(final File image) async {
   final List<dynamic>? classesRaw = await outputs['detection_classes:0']
       ?.asList();
 
-  final List<Rect> rects = [];
+  final List<Measure> rects = [];
 
   if (boxesRaw != null && scoresRaw != null && classesRaw != null) {
     final List<dynamic> boxes = boxesRaw[0];
@@ -99,7 +101,7 @@ Future<List<Rect>> onnxTest(final File image) async {
         final double y2 = box[2];
         final double x2 = box[3];
 
-        rects.add(Rect.fromLTRB(x1, y1, x2, y2));
+        rects.add(Measure(x1, y1, x2, y2));
       }
     }
   }

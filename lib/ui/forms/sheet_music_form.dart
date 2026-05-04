@@ -1,6 +1,8 @@
 import 'dart:io' show File;
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
+import 'package:tfg/models/measure.dart';
 import 'package:tfg/models/sheet_music.dart';
 import 'package:tfg/models/tag.dart';
 import 'package:tfg/server/sheet_music_service.dart';
@@ -44,7 +46,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
   );
   final _tagController = TextEditingController();
   late File? _file = widget.file;
-  late List<Rect> _measures = widget.sheetMusic?.measures.toList() ?? [];
+  late List<Measure> _measures = widget.sheetMusic?.measures?.toList() ?? [];
 
   @override
   void initState() {
@@ -210,6 +212,11 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                       _titleController.text,
                       _authorController.text,
                       id: widget.sheetMusic!.id,
+                      tags: _tags.entries
+                          .where((entry) => entry.value)
+                          .map((entry) => entry.key)
+                          .toList(),
+                      measures: _measures
                     );
                     await editSheetMusic(sheetMusic);
                   } else {
@@ -226,6 +233,9 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                   showSnackbar('Partitura guardada', context);
                   Navigator.of(context).pop();
                 } catch (e) {
+                  if (kDebugMode) {
+                    print(e);
+                  }
                   showSnackbar(
                     'Error al guardar la partitura. Inténtalo más tarde.',
                     context,

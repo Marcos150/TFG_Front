@@ -1,6 +1,7 @@
 import 'dart:io' show File;
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:tfg/models/sheet_music.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
@@ -22,7 +23,11 @@ class _MusicListState extends State<MusicList> {
   bool hasInternet = true;
 
   void _getSheetMusic() =>
-      sheetMusic = getAllSheetMusic().catchError((_) {
+      sheetMusic = getAllSheetMusic().catchError((error, stackTrace) {
+        if (kDebugMode) {
+          print(error);
+          print(stackTrace);
+        }
         hasInternet = false;
         return <SheetMusic>[];
       });

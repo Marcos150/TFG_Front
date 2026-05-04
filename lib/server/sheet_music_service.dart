@@ -32,7 +32,7 @@ Future<List<SheetMusic>> getAllSheetMusic() async {
     }
     return result;
   } else {
-    throw Exception('Failed to load sheet music');
+    throw Exception('Failed to load sheet music: ${response.body}');
   }
 }
 
@@ -63,7 +63,7 @@ Future<SheetMusic> createSheetMusic(SheetMusic sheetMusic, File file) async {
 Future<SheetMusic> editSheetMusic(SheetMusic sheetMusic) async {
   final response = await http.put(
     Uri.parse('$_url/${sheetMusic.id}'),
-    headers: headersSend,
+    headers: headersBoth,
     body: jsonEncode(sheetMusic),
   );
 
@@ -72,7 +72,7 @@ Future<SheetMusic> editSheetMusic(SheetMusic sheetMusic) async {
       jsonDecode(response.body) as Map<String, dynamic>,
     );
   } else {
-    throw Exception('Failed to create sheet music.');
+    throw Exception('Failed to edit sheet music: ${response.body}');
   }
 }
 

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:tfg/models/measure.dart';
 import 'package:tfg/ui/common/image_viewer.dart';
 import 'package:tfg/ui/common/my_app_bar.dart';
 import 'package:tfg/utils/measure_painter.dart';
@@ -12,7 +13,7 @@ class EditMeasuresScreen extends StatefulWidget {
     required this.measures,
   });
 
-  final List<Rect> measures;
+  final List<Measure> measures;
   final File file;
 
   @override
@@ -23,7 +24,7 @@ class _EditMeasuresScreenState extends State<EditMeasuresScreen> {
   Offset? _startPos;
   late Offset _globalScaledStartPos; // For erasing measures
   Offset? _currentPos;
-  late final List<Rect> _measures = widget.measures.toList();
+  late final List<Measure> _measures = widget.measures.toList();
   bool showRemoveOption = false;
 
   @override
@@ -79,7 +80,7 @@ class _EditMeasuresScreenState extends State<EditMeasuresScreen> {
                 _currentPos!.dy / size.height,
               );
 
-              final scaledRect = Rect.fromPoints(scaledStart, scaledEnd);
+              final scaledRect = Measure.fromPoints(scaledStart, scaledEnd);
 
               _measures.add(scaledRect);
 

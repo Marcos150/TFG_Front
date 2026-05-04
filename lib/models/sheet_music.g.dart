@@ -17,6 +17,11 @@ SheetMusic _$SheetMusicFromJson(Map<String, dynamic> json) {
             ?.map((e) => Tag.fromJson(e as Map<String, dynamic>))
             .toList() ??
         const [],
+    measures:
+        (json['measures'] as List<dynamic>?)
+            ?.map((e) => Measure.fromJson(e as Map<String, dynamic>))
+            .toList() ??
+        const [],
   );
 }
 
@@ -26,4 +31,5 @@ Map<String, dynamic> _$SheetMusicToJson(SheetMusic instance) =>
       'title': instance.title,
       'author': instance.author,
       'tags': instance.tags,
+      'measures': instance.measures,
     };

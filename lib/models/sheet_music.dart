@@ -1,7 +1,7 @@
-import 'dart:ui' show Rect;
-
 import 'package:tfg/models/tag.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import 'measure.dart';
 
 part 'sheet_music.g.dart';
 
@@ -12,8 +12,7 @@ class SheetMusic {
   final String title;
   final String author;
   final List<Tag> tags;
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  final List<Rect> measures;
+  final List<Measure>? measures;
 
   const SheetMusic(
     this.title,
