@@ -2,24 +2,33 @@ import 'dart:io' show File;
 
 import 'package:flutter/material.dart';
 import 'package:pdfx/pdfx.dart';
+import 'package:tfg/models/measure.dart';
 import 'package:tfg/utils/utils.dart';
 
 import '../../utils/measure_painter.dart';
 
 class ImageViewer extends StatefulWidget {
-  const ImageViewer({super.key, required this.file, this.measures = const []});
+  const ImageViewer({
+    super.key,
+    required this.file,
+    this.measures = const [],
+    this.hideMeasures = false,
+  });
 
   final File file;
-  final List<Rect> measures;
+  final List<Measure> measures;
+  final bool hideMeasures;
 
   @override
   State<ImageViewer> createState() => _ImageViewerState();
 }
 
 class _ImageViewerState extends State<ImageViewer> {
-  late final _controller = PdfControllerPinch(
-    document: PdfDocument.openFile(widget.file.path),
-  );
+  late final _controller = getFileExtension(widget.file) == 'pdf'
+      ? PdfControllerPinch(
+          document: PdfDocument.openFile(widget.file.path),
+        )
+      : null;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +36,7 @@ class _ImageViewerState extends State<ImageViewer> {
     final extension = getFileExtension(widget.file);
 
     if (extension == 'pdf') {
-      content = PdfViewPinch(controller: _controller);
+      content = PdfViewPinch(controller: _controller!);
     } else if (extension == 'jpg' || extension == 'png') {
       content = Image.file(
         File(widget.file.path),
@@ -36,14 +45,14 @@ class _ImageViewerState extends State<ImageViewer> {
     }
 
     return CustomPaint(
-      foregroundPainter: MeasurePainter(widget.measures),
+      foregroundPainter: MeasurePainter(widget.measures, hideMeasures: widget.hideMeasures),
       child: content,
     );
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 }

@@ -1,4 +1,4 @@
-import 'dart:ui' show Rect, Offset;
+import 'dart:ui' show Rect;
 
 import 'package:json_annotation/json_annotation.dart';
 

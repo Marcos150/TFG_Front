@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:io' show File;
 
 import 'package:flutter/material.dart';
 import 'package:metronome/metronome.dart';
+import 'package:tfg/models/playing_state.dart';
 import 'package:tfg/models/sheet_music.dart';
 import 'package:tfg/server/sheet_music_service.dart';
 import 'package:tfg/ui/common/image_viewer.dart';
@@ -18,9 +20,9 @@ class PracticeScreen extends StatefulWidget {
 
 class _PracticeScreenState extends State<PracticeScreen> {
   File? sheetMusicFile;
-  int bpm = 60;
-  bool isPlaying = false;
+  int bpm = 120;
   final metronome = Metronome();
+  late final StreamSubscription<int> tickSubscription;
 
   @override
   void initState() {
@@ -34,11 +36,18 @@ class _PracticeScreenState extends State<PracticeScreen> {
       bpm: bpm,
       //0 ~ 100
       volume: 70,
-      enableTickCallback: false,
+      enableTickCallback: true,
       // The time signature is the number of beats per measure,default is 4
       timeSignature: 4,
       sampleRate: 88200,
     );
+
+    tickSubscription = metronome.tickStream.listen((int tick) async {
+      if (tick == 0) {
+        PlayingState().currentMeasure++;
+        setState(() {});
+      }
+    });
 
     super.initState();
   }
@@ -57,7 +66,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
               spacing: 24,
               children: [
                 IconButton.outlined(
-                  onPressed: () {
+                  onPressed: PlayingState().isPlaying ? null : () {
                     metronome.setBPM(--bpm);
                     setState(() {});
                   },
@@ -70,20 +79,20 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 ),
                 IconButton.filled(
                   onPressed: () {
-                    if (isPlaying) {
+                    if (PlayingState().isPlaying) {
                       metronome.stop();
                     } else {
                       metronome.play();
                     }
-                    setState(() => isPlaying = !isPlaying);
+                    setState(() => PlayingState().changeState());
                   },
                   icon: Icon(
-                    isPlaying ? Icons.pause : Icons.play_arrow,
+                    PlayingState().isPlaying ? Icons.pause : Icons.play_arrow,
                     size: 36,
                   ),
                 ),
                 IconButton.outlined(
-                  onPressed: () {
+                  onPressed: PlayingState().isPlaying ? null : () {
                     metronome.setBPM(++bpm);
                     setState(() {});
                   },
@@ -108,7 +117,11 @@ class _PracticeScreenState extends State<PracticeScreen> {
             if (sheetMusicFile == null)
               const CircularProgressIndicator()
             else
-              ImageViewer(file: sheetMusicFile!),
+              ImageViewer(
+                file: sheetMusicFile!,
+                measures: widget.sheetMusic.measures ?? [],
+                hideMeasures: PlayingState().isPlaying,
+              ),
           ],
         ),
       ),
@@ -118,12 +131,15 @@ class _PracticeScreenState extends State<PracticeScreen> {
   @override
   void dispose() {
     metronome.destroy();
+    tickSubscription.cancel();
+    PlayingState().stop();
     super.dispose();
   }
 
   @override
   void deactivate() {
     metronome.stop();
+    PlayingState().stop();
     super.deactivate();
   }
 }

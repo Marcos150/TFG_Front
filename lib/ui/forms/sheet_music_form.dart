@@ -182,8 +182,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                       .push(
                         MaterialPageRoute(
                           builder: (context) => EditMeasuresScreen(
-                            //TODO: Use widget ones
-                            measures: _measures /*widget.sheetMusic!.measures*/,
+                            measures: _measures,
                             file: _file!,
                           ),
                         ),
@@ -202,7 +201,9 @@ class SheetMusicFormState extends State<SheetMusicForm> {
             ],
           ),
           if (_file != null)
-            Expanded(child: ImageViewer(file: _file!, measures: _measures)),
+            Expanded(
+              child: ImageViewer(file: _file!, measures: _measures),
+            ),
           ElevatedButton(
             onPressed: () async {
               if (_formKey.currentState!.validate()) {
@@ -216,7 +217,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                           .where((entry) => entry.value)
                           .map((entry) => entry.key)
                           .toList(),
-                      measures: _measures
+                      measures: _measures,
                     );
                     await editSheetMusic(sheetMusic);
                   } else {
@@ -227,14 +228,16 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                           .where((entry) => entry.value)
                           .map((entry) => entry.key)
                           .toList(),
+                      measures: _measures,
                     );
                     await createSheetMusic(sheetMusic, _file!);
                   }
                   showSnackbar('Partitura guardada', context);
                   Navigator.of(context).pop();
-                } catch (e) {
+                } catch (e, st) {
                   if (kDebugMode) {
                     print(e);
+                    print(st);
                   }
                   showSnackbar(
                     'Error al guardar la partitura. Inténtalo más tarde.',

@@ -1,12 +1,19 @@
+import 'dart:math' show min;
+
 import 'package:flutter/material.dart';
+import 'package:tfg/models/playing_state.dart';
 
 class MeasurePainter extends CustomPainter {
   final List<Rect> _rects;
+  final bool hideMeasures;
 
-  MeasurePainter(this._rects);
+  MeasurePainter(this._rects, {this.hideMeasures = false});
 
-  MeasurePainter.fromOffsets(Offset start, Offset end)
-    : _rects = [Rect.fromPoints(start, end)];
+  MeasurePainter.fromOffsets(
+    Offset start,
+    Offset end, {
+    this.hideMeasures = false,
+  }) : _rects = [Rect.fromPoints(start, end)];
 
   bool _isRectNotScaled(Rect rect) {
     return rect.left < 1.0 &&
@@ -23,12 +30,18 @@ class MeasurePainter extends CustomPainter {
       ..strokeWidth = 2.0;
 
     final fillPaint = Paint()
-      ..color = Colors.red.withAlpha(25)
+      ..color = Colors.red.withAlpha(hideMeasures ? 255 : 25)
       ..style = PaintingStyle.fill;
 
-    for (final rect in _rects) {
-      final isNotScaled = _isRectNotScaled(rect);
+    final currentMeasure = PlayingState().currentMeasure;
+    int measuresToShow = _rects.length;
+    if (!currentMeasure.isNegative) {
+      measuresToShow = min(measuresToShow, currentMeasure);
+    }
 
+    for (int i = 0; i < measuresToShow; i++) {
+      final rect = _rects[i];
+      final isNotScaled = _isRectNotScaled(rect);
       final scaledRect = isNotScaled
           ? Rect.fromLTRB(
               rect.left * size.width,
