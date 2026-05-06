@@ -22,10 +22,10 @@ class EditMeasuresScreen extends StatefulWidget {
 
 class _EditMeasuresScreenState extends State<EditMeasuresScreen> {
   Offset? _startPos;
-  late Offset _globalScaledStartPos; // For erasing measures
+  Measure? _rectToRemove;
   Offset? _currentPos;
   late final List<Measure> _measures = widget.measures.toList();
-  bool showRemoveOption = false;
+  bool _showRemoveOption = false;
 
   @override
   Widget build(BuildContext context) {
@@ -37,19 +37,22 @@ class _EditMeasuresScreenState extends State<EditMeasuresScreen> {
       body: LayoutBuilder(
         builder: (context, constraints) => GestureDetector(
           onPanStart: (details) {
-            showRemoveOption = false;
-            _globalScaledStartPos = Offset(
-              details.globalPosition.dx / constraints.maxWidth,
-              details.globalPosition.dy / constraints.maxHeight,
-            );
-            final bool hasTappedRect = _measures.any(
-              (rect) => rect.contains(_globalScaledStartPos),
-            );
-
+            _showRemoveOption = false;
             _startPos = details.localPosition;
 
-            if (hasTappedRect) {
-              setState(() => showRemoveOption = true);
+            final RenderBox box = context.findRenderObject() as RenderBox;
+            final globalScaledStartPos = Offset(
+              _startPos!.dx / box.size.width,
+              _startPos!.dy / box.size.height,
+            );
+
+            _rectToRemove = _measures.firstWhere(
+              (rect) => rect.contains(globalScaledStartPos),
+              orElse: () => const Measure(0, 0, 0, 0),
+            );
+
+            if (_rectToRemove != const Measure(0, 0, 0, 0)) {
+              setState(() => _showRemoveOption = true);
               return;
             }
 
@@ -58,12 +61,12 @@ class _EditMeasuresScreenState extends State<EditMeasuresScreen> {
             });
           },
           onPanUpdate: (details) {
-            if (!showRemoveOption) {
+            if (!_showRemoveOption) {
               setState(() => _currentPos = details.localPosition);
             }
           },
           onPanEnd: (details) {
-            if (_startPos != null && _currentPos != null) {
+            if (_startPos != null && _currentPos != null && !_showRemoveOption) {
               final selectionRect = Rect.fromPoints(_startPos!, _currentPos!);
               if (selectionRect.longestSide < 20) return;
 
@@ -91,21 +94,20 @@ class _EditMeasuresScreenState extends State<EditMeasuresScreen> {
             children: [
               ImageViewer(file: widget.file, measures: _measures),
 
-              if (_startPos != null && _currentPos != null)
+              if (_startPos != null && _currentPos != null && !_showRemoveOption)
                 CustomPaint(
                   painter: MeasurePainter.fromOffsets(_startPos!, _currentPos!),
                 ),
 
-              if (showRemoveOption)
+              if (_showRemoveOption)
                 Positioned(
                   left: _startPos!.dx - 22,
                   top: _startPos!.dy - 50,
                   child: IconButton.filled(
                     onPressed: () {
-                      _measures.removeWhere(
-                        (rect) => rect.contains(_globalScaledStartPos),
-                      );
-                      setState(() => showRemoveOption = false);
+                      _measures.remove(_rectToRemove);
+                      _startPos = null;
+                      setState(() => _showRemoveOption = false);
                     },
                     icon: const Icon(Icons.delete),
                   ),

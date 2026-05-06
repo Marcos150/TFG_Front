@@ -71,8 +71,8 @@ flutter:
   #   - images/a_dot_ham.jpeg
 
   assets:
-    - assets/audio/vine-boom.wav
-    - assets/audio/loud-vine-boom.wav
+    - assets/audio/metronome.wav
+    - assets/audio/metronomeFirst.wav
     - assets/models/mobileNet.onnx
 
   # An image asset can refer to one or more resolution-specific "variants", see

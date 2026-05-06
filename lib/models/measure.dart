@@ -6,7 +6,7 @@ part 'measure.g.dart';
 
 @JsonSerializable()
 class Measure extends Rect {
-  Measure(super.left, super.top, super.right, super.bottom) : super.fromLTRB();
+  const Measure(super.left, super.top, super.right, super.bottom) : super.fromLTRB();
 
   Measure.fromPoints(super.a, super.b) : super.fromPoints();
 

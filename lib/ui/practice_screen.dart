@@ -31,15 +31,15 @@ class _PracticeScreenState extends State<PracticeScreen> {
     ).then((value) => setState(() => sheetMusicFile = value));
 
     metronome.init(
-      'assets/audio/vine-boom.wav',
-      accentedPath: 'assets/audio/loud-vine-boom.wav',
+      'assets/audio/metronome.wav',
+      accentedPath: 'assets/audio/metronomeFirst.wav',
       bpm: bpm,
       //0 ~ 100
-      volume: 70,
+      volume: 100,
       enableTickCallback: true,
       // The time signature is the number of beats per measure,default is 4
       timeSignature: PlayingState().beatsPerMeasure,
-      sampleRate: 88200,
+      sampleRate: 44100,
     );
 
     tickSubscription = metronome.tickStream.listen((int tick) async {

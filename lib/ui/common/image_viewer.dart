@@ -24,20 +24,43 @@ class ImageViewer extends StatefulWidget {
 }
 
 class _ImageViewerState extends State<ImageViewer> {
-  late final _controller = getFileExtension(widget.file) == 'pdf'
-      ? PdfControllerPinch(
-          document: PdfDocument.openFile(widget.file.path),
-        )
+  late final _controller = getFileType(widget.file) == FileType.pdf
+      ? PdfController(document: PdfDocument.openFile(widget.file.path))
       : null;
+  double? _pdfHeight;
+
+  Future<void> _calculateHeight() async {
+    final document = await _controller!.document;
+    final page = await document.getPage(1);
+
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    setState(() {
+      _pdfHeight = (page.height / page.width) * screenWidth;
+    });
+
+    await page.close();
+  }
+
+  @override
+  void initState() {
+    if (getFileType(widget.file) == FileType.pdf) {
+      _calculateHeight();
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     Widget content = const Placeholder();
-    final extension = getFileExtension(widget.file);
+    final extension = getFileType(widget.file);
 
-    if (extension == 'pdf') {
-      content = PdfViewPinch(controller: _controller!);
-    } else if (extension == 'jpg' || extension == 'png') {
+    if (extension == FileType.pdf) {
+      content = SizedBox(
+        height: _pdfHeight,
+        child: AbsorbPointer(child: PdfView(controller: _controller!)),
+      );
+    } else if (extension == FileType.image) {
       content = Image.file(
         File(widget.file.path),
         alignment: AlignmentGeometry.topCenter,
@@ -45,7 +68,10 @@ class _ImageViewerState extends State<ImageViewer> {
     }
 
     return CustomPaint(
-      foregroundPainter: MeasurePainter(widget.measures, hideMeasures: widget.hideMeasures),
+      foregroundPainter: MeasurePainter(
+        widget.measures,
+        hideMeasures: widget.hideMeasures,
+      ),
       child: content,
     );
   }

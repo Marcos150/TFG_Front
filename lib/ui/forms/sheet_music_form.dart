@@ -47,6 +47,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
   final _tagController = TextEditingController();
   late File? _file = widget.file;
   late List<Measure> _measures = widget.sheetMusic?.measures?.toList() ?? [];
+  bool _isLoadingMeasures = false;
 
   @override
   void initState() {
@@ -194,14 +195,16 @@ class SheetMusicFormState extends State<SheetMusicForm> {
               ),
               IconButton(
                 onPressed: () async {
-                  _measures = await onnxTest(_file!);
-                  setState(() {});
+                  setState(() => _isLoadingMeasures = true);
+                  _measures = await findMeasures(_file!);
+                  setState(() => _isLoadingMeasures = false);
                 },
                 icon: const Icon(Icons.smart_toy),
               ),
             ],
           ),
-          if (_file != null)
+          if (_isLoadingMeasures) const CircularProgressIndicator()
+          else if (_file != null)
             Expanded(
               child: ImageViewer(file: _file!, measures: _measures),
             ),
@@ -209,6 +212,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
             onPressed: () async {
               if (_formKey.currentState!.validate()) {
                 try {
+                  late final SheetMusic sheetMusicRes;
                   if (widget.isEditing) {
                     final sheetMusic = SheetMusic(
                       _titleController.text,
@@ -220,7 +224,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                           .toList(),
                       measures: _measures,
                     );
-                    await editSheetMusic(sheetMusic);
+                    sheetMusicRes = await editSheetMusic(sheetMusic);
                   } else {
                     final sheetMusic = SheetMusic(
                       _titleController.text,
@@ -231,10 +235,10 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                           .toList(),
                       measures: _measures,
                     );
-                    await createSheetMusic(sheetMusic, _file!);
+                    sheetMusicRes = await createSheetMusic(sheetMusic, _file!);
                   }
                   showSnackbar('Partitura guardada', context);
-                  Navigator.of(context).pop();
+                  Navigator.of(context).pop(sheetMusicRes);
                 } catch (e, st) {
                   if (kDebugMode) {
                     print(e);

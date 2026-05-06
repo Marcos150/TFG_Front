@@ -2,11 +2,14 @@ import 'dart:io' show File;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_doc_scanner/flutter_doc_scanner.dart';
-import 'package:flutter_onnxruntime/flutter_onnxruntime.dart';
+import 'package:flutter_onnxruntime/flutter_onnxruntime.dart' show OrtValue;
 import 'package:image/image.dart' as img;
+import 'package:pdfx/pdfx.dart';
 import 'dart:typed_data';
 
 import 'package:tfg/models/measure.dart';
+
+import 'OnnxRT.dart';
 
 void showSnackbar(
   final String text,
@@ -20,7 +23,23 @@ void showSnackbar(
   ScaffoldMessenger.of(context).showSnackBar(snackBar);
 }
 
-String getFileExtension(final File file) => file.path.split('.').last;
+String _getFileExtension(final File file) => file.path.split('.').last;
+
+enum FileType { pdf, image, other }
+
+FileType getFileType(final File file) {
+  final extension = _getFileExtension(file);
+  switch (extension) {
+    case 'pdf':
+      return FileType.pdf;
+    case 'jpg':
+    case 'jpeg':
+    case 'png':
+      return FileType.image;
+    default:
+      return FileType.other;
+  }
+}
 
 Future<ImageScanResult?> scanAsPdf() async {
   try {
@@ -33,35 +52,46 @@ Future<ImageScanResult?> scanAsPdf() async {
   return null;
 }
 
+Future<img.Image?> pdfToImage(File pdfPath, {int numPage = 1}) async {
+  final document = await PdfDocument.openFile(pdfPath.path);
+  final page = await document.getPage(numPage);
+
+  // width/height: Higher numbers = better quality (DPI)
+  final pageImage = await page.render(
+    width: page.width * 2,
+    height: page.height * 2,
+    format: PdfPageImageFormat.jpeg,
+  );
+
+  await document.close();
+
+  if (pageImage != null) {
+    final img.Image? decodedImage = img.decodeImage(pageImage.bytes);
+    return decodedImage;
+  }
+
+  return null;
+}
+
 Uint8List _preprocessImage(img.Image image) {
   return image.getBytes(order: img.ChannelOrder.rgb);
 }
 
-class OnnxRT {
-  static final OnnxRT _singleton = OnnxRT._internal();
-  final ort = OnnxRuntime();
-  late OrtSession session;
+Future<List<Measure>> findMeasures(final File image) async {
+  final fileType = getFileType(image);
+  if (fileType == FileType.other) return [];
 
-  Future<void> init() async {
-    //final options = OrtSessionOptions(interOpNumThreads: 1, intraOpNumThreads: 4, providers: [OrtProvider.XNNPACK]);
-    session = await ort.createSessionFromAsset('assets/models/mobileNet.onnx');
+  final img.Image? originalImage;
+  if (fileType == FileType.pdf) {
+    originalImage = await pdfToImage(image);
+  } else {
+    final Uint8List imageBytes = await image.readAsBytes();
+    originalImage = img.decodeImage(imageBytes);
   }
 
-  factory OnnxRT() {
-    return _singleton;
-  }
-
-  OnnxRT._internal() {
-    init();
-  }
-}
-
-Future<List<Measure>> onnxTest(final File image) async {
-  final ort = OnnxRT();
-  final Uint8List imageBytes = await image.readAsBytes();
-  final img.Image? originalImage = img.decodeImage(imageBytes);
   if (originalImage == null) return [];
 
+  final ort = OnnxRT();
   final int imageW = originalImage.width;
   final int imageH = originalImage.height;
 
@@ -71,11 +101,11 @@ Future<List<Measure>> onnxTest(final File image) async {
   final inputs = {
     'image_tensor:0': await OrtValue.fromList(
       inputTensor,
-      [1, imageH, imageW, 3], // Shape: [Batch, H, W, C]d
+      [1, imageH, imageW, 3], // Shape: [Batch, H, W, C]
     ),
   };
 
-  final outputs = await ort.session.run(inputs);
+  final outputs = await ort.runInference(inputs);
 
   // onnxruntime_flutter usually returns nested lists for multidimensional tensors
   final List<dynamic>? boxesRaw = await outputs['detection_boxes:0']?.asList();
@@ -88,12 +118,10 @@ Future<List<Measure>> onnxTest(final File image) async {
 
   if (boxesRaw != null && scoresRaw != null && classesRaw != null) {
     final List<dynamic> boxes = boxesRaw[0];
-    final List<dynamic> scores = scoresRaw[0];
-    final List<dynamic> classes = classesRaw[0];
+    final List<double> scores = scoresRaw[0];
 
     for (int i = 0; i < boxes.length; i++) {
-      // The Python script checks for class == 1 and score > 0.5
-      if (classes[i] == 1 && scores[i] > 0.5) {
+      if (scores[i] > 0.5) {
         final List<dynamic> box = boxes[i];
 
         final double y1 = box[0];

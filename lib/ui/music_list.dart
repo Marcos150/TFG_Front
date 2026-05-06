@@ -9,7 +9,7 @@ import 'package:tfg/server/sheet_music_service.dart';
 import 'package:tfg/ui/common/my_app_bar.dart';
 import 'package:tfg/ui/add_sheet_music_screen.dart';
 import 'package:tfg/ui/practice_screen.dart';
-import 'package:tfg/utils/utils.dart';
+import 'package:tfg/utils/utils.dart' hide FileType;
 
 class MusicList extends StatefulWidget {
   const MusicList({super.key});
@@ -20,17 +20,20 @@ class MusicList extends StatefulWidget {
 
 class _MusicListState extends State<MusicList> {
   late Future<List<SheetMusic>> sheetMusic;
+  List<SheetMusic>? _sheetMusicData;
   bool hasInternet = true;
 
-  void _getSheetMusic() =>
-      sheetMusic = getAllSheetMusic().catchError((Object error, StackTrace stackTrace) {
-        if (kDebugMode) {
-          print(error);
-          print(stackTrace);
-        }
-        hasInternet = false;
-        return <SheetMusic>[];
-      });
+  void _getSheetMusic() => sheetMusic = getAllSheetMusic().catchError((
+    Object error,
+    StackTrace stackTrace,
+  ) {
+    if (kDebugMode) {
+      print(error);
+      print(stackTrace);
+    }
+    hasInternet = false;
+    return <SheetMusic>[];
+  });
 
   @override
   void initState() {
@@ -51,11 +54,12 @@ class _MusicListState extends State<MusicList> {
                 'Error al conectar con el servidor. Comprueba tu conexión a internet.',
               );
             } else if (snapshot.hasData) {
+              _sheetMusicData = snapshot.data!;
               return ListView.builder(
-                itemBuilder: (_, int index) {
+                itemBuilder: (ctx, int index) {
                   return ListTile(
                     leading: const CircleAvatar(),
-                    title: Text(snapshot.data![index].title),
+                    title: Text(_sheetMusicData![index].title),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -65,12 +69,15 @@ class _MusicListState extends State<MusicList> {
                                 .push(
                                   MaterialPageRoute<SheetMusic>(
                                     builder: (context) => AddSheetMusicScreen(
-                                      sheetMusic: snapshot.data![index],
+                                      sheetMusic: _sheetMusicData![index],
                                     ),
                                   ),
                                 )
                                 .then(
-                                  (res) => setState(_getSheetMusic),
+                                  (res) => setState(
+                                    () => _sheetMusicData![index] =
+                                        res ?? _sheetMusicData![index],
+                                  ),
                                 );
                           },
                           icon: const Icon(Icons.edit),
@@ -78,7 +85,7 @@ class _MusicListState extends State<MusicList> {
                         IconButton(
                           onPressed: () {
                             showSnackbar(
-                              'Partitura ${snapshot.data![index].title} borrada',
+                              'Partitura ${_sheetMusicData![index].title} borrada',
                               context,
                             );
                           },
@@ -89,12 +96,12 @@ class _MusicListState extends State<MusicList> {
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute<SheetMusic>(
                         builder: (context) =>
-                            PracticeScreen(sheetMusic: snapshot.data![index]),
+                            PracticeScreen(sheetMusic: _sheetMusicData![index]),
                       ),
                     ),
                   );
                 },
-                itemCount: snapshot.data!.length,
+                itemCount: _sheetMusicData!.length,
               );
             } else {
               return const CircularProgressIndicator();
@@ -129,7 +136,11 @@ class _MusicListState extends State<MusicList> {
                                 AddSheetMusicScreen(file: file),
                           ),
                         )
-                        .then((res) => setState(_getSheetMusic));
+                        .then((res) {
+                          if (res != null) {
+                            setState(() => _sheetMusicData?.add(res));
+                          }
+                        });
                   } else {
                     showSnackbar('Cancelado', context);
                   }
@@ -155,7 +166,11 @@ class _MusicListState extends State<MusicList> {
                             ),
                           ),
                         )
-                        .then((res) => setState(_getSheetMusic));
+                        .then((res) {
+                          if (res != null) {
+                            setState(() => _sheetMusicData?.add(res));
+                          }
+                        });
                   }
                 },
                 child: const Icon(Icons.add_a_photo),
