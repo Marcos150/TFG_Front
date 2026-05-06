@@ -38,7 +38,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
       volume: 70,
       enableTickCallback: true,
       // The time signature is the number of beats per measure,default is 4
-      timeSignature: 4,
+      timeSignature: PlayingState().beatsPerMeasure,
       sampleRate: 88200,
     );
 
@@ -66,10 +66,12 @@ class _PracticeScreenState extends State<PracticeScreen> {
               spacing: 24,
               children: [
                 IconButton.outlined(
-                  onPressed: PlayingState().isPlaying ? null : () {
-                    metronome.setBPM(--bpm);
-                    setState(() {});
-                  },
+                  onPressed: PlayingState().isPlaying
+                      ? null
+                      : () {
+                          metronome.setBPM(--bpm);
+                          setState(() {});
+                        },
                   onLongPress: () {
                     bpm -= 10;
                     metronome.setBPM(bpm);
@@ -92,10 +94,12 @@ class _PracticeScreenState extends State<PracticeScreen> {
                   ),
                 ),
                 IconButton.outlined(
-                  onPressed: PlayingState().isPlaying ? null : () {
-                    metronome.setBPM(++bpm);
-                    setState(() {});
-                  },
+                  onPressed: PlayingState().isPlaying
+                      ? null
+                      : () {
+                          metronome.setBPM(++bpm);
+                          setState(() {});
+                        },
                   onLongPress: () {
                     bpm += 10;
                     metronome.setBPM(bpm);
@@ -113,14 +117,41 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 Text('= $bpm', style: const TextStyle(fontSize: 32)),
               ],
             ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: 8,
+              children: [
+                ...List<Widget>.generate(3, (int index) {
+                  return ChoiceChip(
+                    label: Text(
+                      (index + 2).toString(),
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                    selected: PlayingState().beatsPerMeasure == index + 2,
+                    onSelected: PlayingState().isPlaying
+                        ? null
+                        : (bool selected) {
+                            setState(() {
+                              metronome.setTimeSignature(
+                                PlayingState().beatsPerMeasure = index + 2,
+                              );
+                            });
+                          },
+                  );
+                }),
+              ],
+            ),
             const SizedBox(height: 12),
             if (sheetMusicFile == null)
               const CircularProgressIndicator()
             else
-              ImageViewer(
-                file: sheetMusicFile!,
-                measures: widget.sheetMusic.measures ?? [],
-                hideMeasures: PlayingState().isPlaying,
+              Flexible(
+                child: ImageViewer(
+                  file: sheetMusicFile!,
+                  measures: widget.sheetMusic.measures ?? [],
+                  hideMeasures: PlayingState().isPlaying,
+                ),
               ),
           ],
         ),

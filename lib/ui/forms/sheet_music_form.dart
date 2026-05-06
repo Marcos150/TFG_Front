@@ -129,7 +129,6 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                   selected: _tags.values.toList()[index],
                   onSelected: (bool selected) {
                     setState(() {
-                      //_imgMat = detectSheetMusic(_file!);
                       _tags[_tags.keys.toList()[index]] =
                           !_tags[_tags.keys.toList()[index]]!;
                     });
@@ -138,7 +137,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
               }),
               IconButton(
                 onPressed: () {
-                  showDialog(
+                  showDialog<void>(
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
@@ -180,14 +179,16 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                 onPressed: () {
                   Navigator.of(context)
                       .push(
-                        MaterialPageRoute(
+                        MaterialPageRoute<List<Measure>>(
                           builder: (context) => EditMeasuresScreen(
                             measures: _measures,
                             file: _file!,
                           ),
                         ),
                       )
-                      .then((res) => setState(() => _measures = res));
+                      .then(
+                        (res) => setState(() => _measures = res ?? _measures),
+                      );
                 },
                 icon: const Icon(Icons.edit),
               ),

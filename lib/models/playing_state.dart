@@ -1,5 +1,6 @@
 class PlayingState {
   bool isPlaying;
+  int beatsPerMeasure = 4;
   int currentMeasure = -1;
 
   static final PlayingState _singleton = PlayingState._internal();

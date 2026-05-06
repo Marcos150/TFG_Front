@@ -23,7 +23,7 @@ class _MusicListState extends State<MusicList> {
   bool hasInternet = true;
 
   void _getSheetMusic() =>
-      sheetMusic = getAllSheetMusic().catchError((error, stackTrace) {
+      sheetMusic = getAllSheetMusic().catchError((Object error, StackTrace stackTrace) {
         if (kDebugMode) {
           print(error);
           print(stackTrace);
@@ -70,7 +70,7 @@ class _MusicListState extends State<MusicList> {
                                   ),
                                 )
                                 .then(
-                                  (res) => setState(() => _getSheetMusic()),
+                                  (res) => setState(_getSheetMusic),
                                 );
                           },
                           icon: const Icon(Icons.edit),
@@ -129,7 +129,7 @@ class _MusicListState extends State<MusicList> {
                                 AddSheetMusicScreen(file: file),
                           ),
                         )
-                        .then((res) => setState(() => _getSheetMusic()));
+                        .then((res) => setState(_getSheetMusic));
                   } else {
                     showSnackbar('Cancelado', context);
                   }
@@ -155,7 +155,7 @@ class _MusicListState extends State<MusicList> {
                             ),
                           ),
                         )
-                        .then((res) => setState(() => _getSheetMusic()));
+                        .then((res) => setState(_getSheetMusic));
                   }
                 },
                 child: const Icon(Icons.add_a_photo),
