@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../../utils/utils.dart';
+import 'package:tfg/ui/register_screen.dart';
 
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   const MyAppBar({super.key, required this.title, this.onBackPressed});
@@ -25,7 +24,11 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         IconButton(
           onPressed: () {
-            showSnackbar('Abrir perfil', context);
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (context) => const RegisterScreen(),
+              ),
+            );
           },
           icon: const CircleAvatar(),
         ),

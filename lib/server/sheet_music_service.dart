@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
+import 'dart:io' show File, Directory;
 import 'package:http/http.dart' as http;
 import 'package:tfg/models/sheet_music.dart';
 import 'common_service.dart';
@@ -7,10 +7,7 @@ import 'common_service.dart';
 const _url = '$urlCommon/sheet-music';
 
 Future<SheetMusic> fetchSheetMusic(int id) async {
-  final response = await http.get(
-    Uri.parse('$_url/$id'),
-    headers: headersReceive,
-  );
+  final response = await http.get(Uri.parse('$_url/$id'), headers: headersAuth);
 
   if (response.statusCode == 200) {
     return SheetMusic.fromJson(
@@ -22,7 +19,8 @@ Future<SheetMusic> fetchSheetMusic(int id) async {
 }
 
 Future<List<SheetMusic>> getAllSheetMusic() async {
-  final response = await http.get(Uri.parse(_url), headers: headersReceive);
+  print(headersAuth);
+  final response = await http.get(Uri.parse(_url), headers: headersAuth);
 
   if (response.statusCode == 200) {
     final List<dynamic> list = jsonDecode(response.body);
@@ -48,7 +46,7 @@ Future<SheetMusic> createSheetMusic(SheetMusic sheetMusic, File file) async {
     }
   });
   request.files.add(await http.MultipartFile.fromPath('file', file.path));
-  request.headers.addAll(headersSend);
+  request.headers.addAll(headersAuth);
   final response = await request.send();
 
   if (response.statusCode == 201) {
@@ -77,7 +75,10 @@ Future<SheetMusic> editSheetMusic(SheetMusic sheetMusic) async {
 }
 
 Future<File> getSheetMusicFile(int id) async {
-  final response = await http.get(Uri.parse('$_url/$id/file'));
+  final response = await http.get(
+    Uri.parse('$_url/$id/file'),
+    headers: headersAuth,
+  );
 
   if (response.statusCode == 200) {
     final extension =
