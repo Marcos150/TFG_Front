@@ -15,10 +15,8 @@ Future<String> register(String email, String password) async {
 
   if (response.statusCode == 201) {
     final token = jsonDecode(response.body)['token'] as String;
-    print(token);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', token);
-    headersAuth['Authorization'] = 'Bearer $token';
     return jsonDecode(response.body)['token'] as String;
   } else {
     throw Exception('Failed to register: ${response.body}');
@@ -37,10 +35,8 @@ Future<String> login(String email, String password) async {
 
   if (response.statusCode == 200) {
     final token = jsonDecode(response.body)['token'] as String;
-    print(token);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', token);
-    headersAuth['Authorization'] = 'Bearer $token';
     return jsonDecode(response.body)['token'] as String;
   } else {
     throw Exception('Failed to register: ${response.body}');

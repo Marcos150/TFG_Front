@@ -8,17 +8,15 @@ const headersBoth = {
   'Accept': 'application/json',
   'Content-Type': 'application/json; charset=UTF-8',
 };
-Map<String, String> headersAuth = {'Accept': 'application/json'};
 
-void initApiToken() async {
+Future<Map<String, String>> getAuthHeader() async {
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('token');
   if (token != null) {
-    headersAuth = {
+    return {
       'Accept': 'application/json',
       'Authorization': 'Bearer $token',
     };
-  } else {
-    headersAuth = headersBoth;
   }
+  return headersBoth;
 }

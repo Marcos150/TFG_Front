@@ -48,13 +48,14 @@ class SheetMusicFormState extends State<SheetMusicForm> {
   late File? _file = widget.file;
   late List<Measure> _measures = widget.sheetMusic?.measures?.toList() ?? [];
   bool _isLoadingMeasures = false;
+  bool _errorGettingFile = false;
 
   @override
   void initState() {
     if (widget.sheetMusic != null) {
-      getSheetMusicFile(
-        widget.sheetMusic!.id!,
-      ).then((value) => setState(() => _file = value));
+      getSheetMusicFile(widget.sheetMusic!.id!)
+          .then((value) => setState(() => _file = value))
+          .catchError((_) => setState(() => _errorGettingFile = true));
     }
 
     getAllTags().then(
@@ -203,7 +204,10 @@ class SheetMusicFormState extends State<SheetMusicForm> {
               ),
             ],
           ),
-          if (_isLoadingMeasures) const CircularProgressIndicator()
+          if (_isLoadingMeasures)
+            const CircularProgressIndicator()
+          else if (_errorGettingFile)
+            const Text('Error al cargar la partitura')
           else if (_file != null)
             Expanded(
               child: ImageViewer(file: _file!, measures: _measures),

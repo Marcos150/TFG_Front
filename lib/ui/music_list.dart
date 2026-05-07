@@ -49,11 +49,7 @@ class _MusicListState extends State<MusicList> {
         child: FutureBuilder(
           future: sheetMusic,
           builder: (context, snapshot) {
-            if (!hasInternet) {
-              return const Text(
-                'Error al conectar con el servidor. Comprueba tu conexión a internet.',
-              );
-            } else if (snapshot.hasData) {
+            if (snapshot.hasData) {
               _sheetMusicData = snapshot.data!;
               return ListView.builder(
                 itemBuilder: (ctx, int index) {

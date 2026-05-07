@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:tfg/server/common_service.dart';
 import 'package:tfg/ui/music_list.dart';
 import 'package:tfg/utils/OnnxRT.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  initApiToken();
   OnnxRT();
   runApp(const MyApp());
 }

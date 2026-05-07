@@ -13,6 +13,8 @@ class SheetMusic {
   final String author;
   final List<Tag> tags;
   final List<Measure>? measures;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  final String? fileLocalPath;
 
   const SheetMusic(
     this.title,
@@ -20,6 +22,7 @@ class SheetMusic {
     this.id,
     this.tags = const [],
     this.measures = const [],
+    this.fileLocalPath,
   });
 
   factory SheetMusic.fromJson(Map<String, dynamic> json) =>
