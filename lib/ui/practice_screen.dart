@@ -7,6 +7,7 @@ import 'package:tfg/models/playing_state.dart';
 import 'package:tfg/models/sheet_music.dart';
 import 'package:tfg/server/sheet_music_service.dart';
 import 'package:tfg/ui/common/image_viewer.dart';
+import 'package:tfg/ui/common/maintained_press_detector.dart';
 import 'package:tfg/ui/common/my_app_bar.dart';
 
 class PracticeScreen extends StatefulWidget {
@@ -19,21 +20,23 @@ class PracticeScreen extends StatefulWidget {
 }
 
 class _PracticeScreenState extends State<PracticeScreen> {
-  File? sheetMusicFile;
-  int bpm = 120;
-  final metronome = Metronome();
-  late final StreamSubscription<int> tickSubscription;
+  File? _sheetMusicFile;
+  int _bpm = 120;
+  final _metronome = Metronome();
+  late final StreamSubscription<int> _tickSubscription;
 
   @override
   void initState() {
-    getSheetMusicFile(
-      widget.sheetMusic.id!,
-    ).then((value) => setState(() => sheetMusicFile = value));
+    if (widget.sheetMusic.id != null) {
+      getSheetMusicFile(
+        widget.sheetMusic.id!,
+      ).then((value) => setState(() => _sheetMusicFile = value));
+    }
 
-    metronome.init(
+    _metronome.init(
       'assets/audio/metronome.wav',
       accentedPath: 'assets/audio/metronomeFirst.wav',
-      bpm: bpm,
+      bpm: _bpm,
       //0 ~ 100
       volume: 100,
       enableTickCallback: true,
@@ -42,7 +45,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
       sampleRate: 44100,
     );
 
-    tickSubscription = metronome.tickStream.listen((int tick) async {
+    _tickSubscription = _metronome.tickStream.listen((int tick) async {
       if (tick == 0) {
         PlayingState().currentMeasure++;
         setState(() {});
@@ -65,26 +68,26 @@ class _PracticeScreenState extends State<PracticeScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: 24,
               children: [
-                IconButton.outlined(
-                  onPressed: PlayingState().isPlaying
-                      ? null
-                      : () {
-                          metronome.setBPM(--bpm);
-                          setState(() {});
-                        },
-                  onLongPress: () {
-                    bpm -= 10;
-                    metronome.setBPM(bpm);
+                MaintainedPressDetector(
+                  frequency: const Duration(milliseconds: 100),
+                  whileLongPress: () {
+                    _metronome.setBPM(--_bpm);
                     setState(() {});
                   },
-                  icon: const Icon(Icons.remove, size: 36),
+                  child: IconButton.outlined(
+                    onPressed: () {
+                      _metronome.setBPM(--_bpm);
+                      setState(() {});
+                    },
+                    icon: const Icon(Icons.remove, size: 36),
+                  ),
                 ),
                 IconButton.filled(
                   onPressed: () {
                     if (PlayingState().isPlaying) {
-                      metronome.stop();
+                      _metronome.stop();
                     } else {
-                      metronome.play();
+                      _metronome.play();
                     }
                     setState(() => PlayingState().changeState());
                   },
@@ -93,19 +96,19 @@ class _PracticeScreenState extends State<PracticeScreen> {
                     size: 36,
                   ),
                 ),
-                IconButton.outlined(
-                  onPressed: PlayingState().isPlaying
-                      ? null
-                      : () {
-                          metronome.setBPM(++bpm);
-                          setState(() {});
-                        },
-                  onLongPress: () {
-                    bpm += 10;
-                    metronome.setBPM(bpm);
+                MaintainedPressDetector(
+                  frequency: const Duration(milliseconds: 100),
+                  whileLongPress: () {
+                    _metronome.setBPM(++_bpm);
                     setState(() {});
                   },
-                  icon: const Icon(Icons.add, size: 36),
+                  child: IconButton.outlined(
+                    onPressed: () {
+                      _metronome.setBPM(++_bpm);
+                      setState(() {});
+                    },
+                    icon: const Icon(Icons.add, size: 36),
+                  ),
                 ),
               ],
             ),
@@ -114,7 +117,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.music_note, size: 42),
-                Text('= $bpm', style: const TextStyle(fontSize: 32)),
+                Text('= $_bpm', style: const TextStyle(fontSize: 32)),
               ],
             ),
             const SizedBox(height: 8),
@@ -133,7 +136,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                         ? null
                         : (bool selected) {
                             setState(() {
-                              metronome.setTimeSignature(
+                              _metronome.setTimeSignature(
                                 PlayingState().beatsPerMeasure = index + 2,
                               );
                             });
@@ -143,13 +146,11 @@ class _PracticeScreenState extends State<PracticeScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            if (sheetMusicFile == null)
-              const CircularProgressIndicator()
-            else
+            if (_sheetMusicFile != null)
               Flexible(
                 child: ImageViewer(
-                  file: sheetMusicFile!,
-                  measures: widget.sheetMusic.measures ?? [],
+                  file: _sheetMusicFile!,
+                  measures: widget.sheetMusic.measures ?? const [],
                   hideMeasures: PlayingState().isPlaying,
                 ),
               ),
@@ -161,15 +162,15 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   @override
   void dispose() {
-    metronome.destroy();
-    tickSubscription.cancel();
+    _metronome.destroy();
+    _tickSubscription.cancel();
     PlayingState().stop();
     super.dispose();
   }
 
   @override
   void deactivate() {
-    metronome.stop();
+    _metronome.stop();
     PlayingState().stop();
     super.deactivate();
   }

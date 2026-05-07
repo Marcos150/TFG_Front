@@ -186,13 +186,8 @@ class _MusicListState extends State<MusicList> {
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute<SheetMusic>(
-                      builder: (context) => const PracticeScreen(
-                        sheetMusic: SheetMusic(
-                          'Metrónomo',
-                          'Desconocido',
-                          id: -1,
-                        ),
-                      ),
+                      builder: (context) =>
+                          const PracticeScreen(sheetMusic: SheetMusic('', '')),
                     ),
                   );
                 },
