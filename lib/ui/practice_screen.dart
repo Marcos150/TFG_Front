@@ -42,7 +42,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
       enableTickCallback: true,
       // The time signature is the number of beats per measure,default is 4
       timeSignature: PlayingState().beatsPerMeasure,
-      sampleRate: 44100,
     );
 
     _tickSubscription = _metronome.tickStream.listen((int tick) async {
@@ -125,19 +124,19 @@ class _PracticeScreenState extends State<PracticeScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: 8,
               children: [
-                ...List<Widget>.generate(3, (int index) {
+                ...List<Widget>.generate(4, (int index) {
                   return ChoiceChip(
                     label: Text(
-                      (index + 2).toString(),
+                      (index + 1).toString(),
                       style: const TextStyle(fontSize: 18),
                     ),
-                    selected: PlayingState().beatsPerMeasure == index + 2,
+                    selected: PlayingState().beatsPerMeasure == index + 1,
                     onSelected: PlayingState().isPlaying
                         ? null
                         : (bool selected) {
                             setState(() {
                               _metronome.setTimeSignature(
-                                PlayingState().beatsPerMeasure = index + 2,
+                                PlayingState().beatsPerMeasure = index + 1,
                               );
                             });
                           },
