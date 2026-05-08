@@ -8,6 +8,7 @@ import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:tfg/server/sheet_music_service.dart';
 import 'package:tfg/ui/common/my_app_bar.dart';
 import 'package:tfg/ui/add_sheet_music_screen.dart';
+import 'package:tfg/ui/login_screen.dart';
 import 'package:tfg/ui/practice_screen.dart';
 import 'package:tfg/utils/utils.dart' hide FileType;
 
@@ -182,13 +183,29 @@ class _MusicListState extends State<MusicList> {
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute<SheetMusic>(
-                      builder: (context) => const PracticeScreen(
-                        sheetMusic: SheetMusic.empty(),
-                      ),
+                      builder: (context) =>
+                          const PracticeScreen(sheetMusic: SheetMusic.empty()),
                     ),
                   );
                 },
                 child: const Icon(Icons.music_note),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              const Text('Iniciar sesión'),
+              const SizedBox(width: 20),
+              FloatingActionButton.small(
+                heroTag: null,
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<SheetMusic>(
+                      builder: (context) => const LoginScreen(),
+                    ),
+                  );
+                },
+                child: const Icon(Icons.login),
               ),
             ],
           ),
