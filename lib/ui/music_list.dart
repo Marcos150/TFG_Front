@@ -183,7 +183,7 @@ class _MusicListState extends State<MusicList> {
                   Navigator.of(context).push(
                     MaterialPageRoute<SheetMusic>(
                       builder: (context) => const PracticeScreen(
-                        sheetMusic: SheetMusic('', '', id: -1),
+                        sheetMusic: SheetMusic.empty(),
                       ),
                     ),
                   );

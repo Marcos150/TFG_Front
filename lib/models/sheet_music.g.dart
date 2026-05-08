@@ -32,6 +32,6 @@ Map<String, dynamic> _$SheetMusicToJson(SheetMusic instance) =>
       'title': instance.title,
       'author': instance.author,
       'tags': instance.tags.map((e) => e.toJson()).toList(),
-      'measures': instance.measures?.map((e) => e.toJson()).toList(),
+      'measures': instance.measures.map((e) => e.toJson()).toList(),
       'fileLocalPath': instance.fileLocalPath,
     };

@@ -12,17 +12,33 @@ class SheetMusic {
   final String title;
   final String author;
   final List<Tag> tags;
-  final List<Measure>? measures;
+  final List<Measure> measures;
   final String? fileLocalPath;
 
-  const SheetMusic(
+  SheetMusic(
     this.title,
     this.author, {
     required this.id,
     this.tags = const [],
     this.measures = const [],
     this.fileLocalPath,
-  });
+  }) {
+    measures.sort((a, b) {
+      const tolerance = 0.05;
+
+      if ((a.top - b.top).abs() > tolerance) return a.top.compareTo(b.top);
+
+      return a.left.compareTo(b.left);
+    });
+  }
+
+  const SheetMusic.empty()
+    : id = -1,
+      title = '',
+      author = '',
+      tags = const [],
+      measures = const [],
+      fileLocalPath = null;
 
   factory SheetMusic.fromJson(Map<String, dynamic> json) =>
       _$SheetMusicFromJson(json);

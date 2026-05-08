@@ -121,7 +121,7 @@ Future<List<SheetMusic>> getNewestSheetMusicList(
   for (final newSheetMusic in newestList) {
     final oldSheetMusic = oldestList.firstWhere(
       (local) => local.id == newSheetMusic.id,
-      orElse: () => const SheetMusic('', '', id: -1),
+      orElse: () => const SheetMusic.empty(),
     );
 
     result.add(newSheetMusic);
