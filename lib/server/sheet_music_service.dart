@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 import 'package:tfg/models/sheet_music.dart';
 import 'package:tfg/utils/local_storage.dart';
 import 'common_service.dart';
-import 'package:path_provider/path_provider.dart';
 
 const _url = '$urlCommon/sheet-music';
 
@@ -28,11 +27,13 @@ Future<List<SheetMusic>> getAllSheetMusic() async {
     final response = await http.get(Uri.parse(_url), headers: headersAuth);
 
     if (response.statusCode == 200) {
-      final List<dynamic> list = jsonDecode(response.body);
-      final List<SheetMusic> result = [];
+      final list = jsonDecode(response.body);
+      final List<SheetMusic> sheetMusicList = [];
       for (final sheetMusic in list) {
-        result.add(SheetMusic.fromJson(sheetMusic));
+        sheetMusicList.add(SheetMusic.fromJson(sheetMusic));
       }
+      final result = await getNewestSheetMusicList(sheetMusicList);
+
       storeSheetMusicList(result);
       return result;
     } else {
@@ -57,13 +58,16 @@ Future<SheetMusic> createSheetMusic(SheetMusic sheetMusic, File file) async {
   });
   request.files.add(await http.MultipartFile.fromPath('file', file.path));
   request.headers.addAll(headersAuth);
+
+  storeSheetMusic(sheetMusic, file: file);
+  setPendingUpload(true);
   final response = await request.send();
 
   if (response.statusCode == 201) {
+    setPendingUpload(false);
     final res = SheetMusic.fromJson(
       jsonDecode(await response.stream.bytesToString()) as Map<String, dynamic>,
     );
-    storeSheetMusic(res);
     return res;
   } else {
     throw Exception('Failed to create sheet music.');
@@ -77,7 +81,10 @@ Future<SheetMusic> editSheetMusic(SheetMusic sheetMusic) async {
     body: jsonEncode(sheetMusic),
   );
 
+  setPendingUpload(true);
+
   if (response.statusCode == 200) {
+    setPendingUpload(false);
     return SheetMusic.fromJson(
       jsonDecode(response.body) as Map<String, dynamic>,
     );
@@ -87,6 +94,9 @@ Future<SheetMusic> editSheetMusic(SheetMusic sheetMusic) async {
 }
 
 Future<File> getSheetMusicFile(int id) async {
+  final localFile = await getStoredSheetMusicFile(id);
+  if (localFile != null) return localFile;
+
   final headersAuth = await getAuthHeader();
   try {
     final response = await http.get(
@@ -98,15 +108,11 @@ Future<File> getSheetMusicFile(int id) async {
       final extension =
           response.headers['content-type']?.split('/').last ?? 'pdf';
       final bytes = response.bodyBytes;
-      final directory = await getApplicationSupportDirectory();
-      final file = File('${directory.path}/sheet_music_$id.$extension');
-      storeSheetMusicFilePath(id, file.path);
-      await file.writeAsBytes(bytes);
-      return file;
+      return storeSheetMusicFile(id, bytes, extension);
     } else {
-      return getStoredSheetMusicFile(id);
+      return (await getStoredSheetMusicFile(id))!;
     }
   } catch (_) {
-    return getStoredSheetMusicFile(id);
+    return (await getStoredSheetMusicFile(id))!;
   }
 }

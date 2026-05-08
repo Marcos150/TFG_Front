@@ -5,21 +5,20 @@ import 'measure.dart';
 
 part 'sheet_music.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class SheetMusic {
   @JsonKey(required: true)
-  final int? id;
+  final int id;
   final String title;
   final String author;
   final List<Tag> tags;
   final List<Measure>? measures;
-  @JsonKey(includeFromJson: false, includeToJson: false)
   final String? fileLocalPath;
 
   const SheetMusic(
     this.title,
     this.author, {
-    this.id,
+    required this.id,
     this.tags = const [],
     this.measures = const [],
     this.fileLocalPath,

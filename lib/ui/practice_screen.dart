@@ -28,11 +28,9 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   @override
   void initState() {
-    if (widget.sheetMusic.id != null) {
-      getSheetMusicFile(widget.sheetMusic.id!)
-          .then((value) => setState(() => _sheetMusicFile = value))
-          .catchError((_) => setState(() => _errorGettingFile = true));
-    }
+    getSheetMusicFile(widget.sheetMusic.id)
+        .then((value) => setState(() => _sheetMusicFile = value))
+        .catchError((_) => setState(() => _errorGettingFile = true));
 
     _metronome.init(
       'assets/audio/metronome.wav',

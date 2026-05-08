@@ -11,7 +11,7 @@ SheetMusic _$SheetMusicFromJson(Map<String, dynamic> json) {
   return SheetMusic(
     json['title'] as String,
     json['author'] as String,
-    id: (json['id'] as num?)?.toInt(),
+    id: (json['id'] as num).toInt(),
     tags:
         (json['tags'] as List<dynamic>?)
             ?.map((e) => Tag.fromJson(e as Map<String, dynamic>))
@@ -22,6 +22,7 @@ SheetMusic _$SheetMusicFromJson(Map<String, dynamic> json) {
             ?.map((e) => Measure.fromJson(e as Map<String, dynamic>))
             .toList() ??
         const [],
+    fileLocalPath: json['fileLocalPath'] as String?,
   );
 }
 
@@ -30,6 +31,7 @@ Map<String, dynamic> _$SheetMusicToJson(SheetMusic instance) =>
       'id': instance.id,
       'title': instance.title,
       'author': instance.author,
-      'tags': instance.tags,
-      'measures': instance.measures,
+      'tags': instance.tags.map((e) => e.toJson()).toList(),
+      'measures': instance.measures?.map((e) => e.toJson()).toList(),
+      'fileLocalPath': instance.fileLocalPath,
     };

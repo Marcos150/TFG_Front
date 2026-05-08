@@ -53,7 +53,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
   @override
   void initState() {
     if (widget.sheetMusic != null) {
-      getSheetMusicFile(widget.sheetMusic!.id!)
+      getSheetMusicFile(widget.sheetMusic!.id)
           .then((value) => setState(() => _file = value))
           .catchError((_) => setState(() => _errorGettingFile = true));
     }
@@ -238,6 +238,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                           .map((entry) => entry.key)
                           .toList(),
                       measures: _measures,
+                      id: DateTime.now().millisecondsSinceEpoch,
                     );
                     sheetMusicRes = await createSheetMusic(sheetMusic, _file!);
                   }
