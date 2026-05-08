@@ -25,7 +25,7 @@ void storeSheetMusicList(List<SheetMusic> sheetMusicList) async {
   prefs.setString(sheetMusicListKey, storeData);
 }
 
-void storeSheetMusic(SheetMusic sheetMusic, {File? file}) async {
+Future<SheetMusic> storeSheetMusic(SheetMusic sheetMusic, {File? file}) async {
   final prefs = await SharedPreferences.getInstance();
   final storedData = prefs.getString(sheetMusicListKey);
 
@@ -41,6 +41,8 @@ void storeSheetMusic(SheetMusic sheetMusic, {File? file}) async {
     final extension = file.path.split('.').last;
     storeSheetMusicFile(sheetMusic.id, file.readAsBytesSync(), extension);
   }
+
+  return sheetMusic;
 }
 
 Future<File> storeSheetMusicFile(

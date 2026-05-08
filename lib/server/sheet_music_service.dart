@@ -59,18 +59,23 @@ Future<SheetMusic> createSheetMusic(SheetMusic sheetMusic, File file) async {
   request.files.add(await http.MultipartFile.fromPath('file', file.path));
   request.headers.addAll(headersAuth);
 
-  storeSheetMusic(sheetMusic, file: file);
+  final storedSheetMusic = storeSheetMusic(sheetMusic, file: file);
   setPendingUpload(true);
-  final response = await request.send();
+  try {
+    final response = await request.send();
 
-  if (response.statusCode == 201) {
-    setPendingUpload(false);
-    final res = SheetMusic.fromJson(
-      jsonDecode(await response.stream.bytesToString()) as Map<String, dynamic>,
-    );
-    return res;
-  } else {
-    throw Exception('Failed to create sheet music.');
+    if (response.statusCode == 201) {
+      setPendingUpload(false);
+      final res = SheetMusic.fromJson(
+        jsonDecode(await response.stream.bytesToString()) as Map<String,
+            dynamic>,
+      );
+      return res;
+    }
+
+    return storedSheetMusic;
+  } catch (_) {
+    return storedSheetMusic;
   }
 }
 
