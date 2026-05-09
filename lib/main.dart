@@ -18,7 +18,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Sight reading app',
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: true,
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        colorSchemeSeed: Colors.deepPurple
+      ),
       theme: ThemeData(
         // This is the theme of your application.
         //

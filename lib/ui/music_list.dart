@@ -57,7 +57,8 @@ class _MusicListState extends State<MusicList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const MyAppBar(title: 'Mis partituras'),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: FutureBuilder(
           future: sheetMusic,
           builder: (context, snapshot) {
@@ -147,7 +148,7 @@ class _MusicListState extends State<MusicList> {
                 ),
               );
             } else {
-              return const CircularProgressIndicator();
+              return const Center(child: CircularProgressIndicator());
             }
           },
         ),
