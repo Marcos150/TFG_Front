@@ -46,7 +46,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
   );
   final _tagController = TextEditingController();
   late File? _file = widget.file;
-  late List<Measure> _measures = widget.sheetMusic?.measures?.toList() ?? [];
+  late List<Measure> _measures = widget.sheetMusic?.measures.toList() ?? [];
   bool _isLoadingMeasures = false;
   bool _errorGettingFile = false;
 
@@ -204,15 +204,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
               ),
             ],
           ),
-          if (_isLoadingMeasures)
-            const CircularProgressIndicator()
-          else if (_errorGettingFile)
-            const Text('Error al cargar la partitura')
-          else if (_file != null)
-            Expanded(
-              child: ImageViewer(file: _file!, measures: _measures),
-            ),
-          ElevatedButton(
+          ElevatedButton.icon(
             onPressed: () async {
               if (_formKey.currentState!.validate()) {
                 try {
@@ -256,8 +248,18 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                 }
               }
             },
-            child: const Text('Guardar'),
+            icon: const Icon(Icons.save_alt),
+            label: const Text('Guardar'),
           ),
+          const SizedBox(height: 8),
+          if (_isLoadingMeasures)
+            const CircularProgressIndicator()
+          else if (_errorGettingFile)
+            const Text('Error al cargar la partitura')
+          else if (_file != null)
+            Expanded(
+              child: ImageViewer(file: _file!, measures: _measures),
+            ),
         ],
       ),
     );

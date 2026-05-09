@@ -148,7 +148,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
               Flexible(
                 child: ImageViewer(
                   file: _sheetMusicFile!,
-                  measures: widget.sheetMusic.measures ?? const [],
+                  measures: widget.sheetMusic.measures,
                   hideMeasures: PlayingState().isPlaying,
                 ),
               ),
