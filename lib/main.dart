@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:tfg/models/login_state.dart';
 import 'package:tfg/ui/music_list.dart';
 import 'package:tfg/utils/OnnxRT.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  LoginState();
   OnnxRT();
   runApp(const MyApp());
 }

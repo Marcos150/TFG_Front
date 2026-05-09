@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tfg/ui/register_screen.dart';
+import 'package:tfg/ui/profile_screen.dart';
 
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   const MyAppBar({super.key, required this.title, this.onBackPressed});
@@ -10,15 +10,17 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      leading: Navigator.of(context).canPop() ? BackButton(
-        onPressed: () {
-          if (onBackPressed != null) {
-            onBackPressed!();
-          } else {
-            Navigator.of(context).pop();
-          }
-        },
-      ) : null,
+      leading: Navigator.of(context).canPop()
+          ? BackButton(
+              onPressed: () {
+                if (onBackPressed != null) {
+                  onBackPressed!();
+                } else {
+                  Navigator.of(context).pop();
+                }
+              },
+            )
+          : null,
       centerTitle: true,
       title: Text(title),
       actions: [
@@ -26,11 +28,11 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
           onPressed: () {
             Navigator.of(context).push(
               MaterialPageRoute<void>(
-                builder: (context) => const RegisterScreen(),
+                builder: (context) => const ProfileScreen(),
               ),
             );
           },
-          icon: const CircleAvatar(),
+          icon: const CircleAvatar(child: Icon(Icons.person)),
         ),
       ],
       actionsPadding: const EdgeInsets.fromLTRB(0, 0, 20, 0),

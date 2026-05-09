@@ -1,4 +1,4 @@
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tfg/models/login_state.dart';
 
 const String urlCommon = 'http://10.0.2.2:8000/api';
 //const String urlCommon = 'http://127.0.0.1:8000/api';
@@ -10,8 +10,7 @@ const headersBoth = {
 };
 
 Future<Map<String, String>> getAuthHeader() async {
-  final prefs = await SharedPreferences.getInstance();
-  final token = prefs.getString('token');
+  final token = LoginState().token;
   if (token != null) {
     return {
       'Accept': 'application/json',

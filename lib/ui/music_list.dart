@@ -3,6 +3,7 @@ import 'dart:io' show File;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
+import 'package:tfg/models/login_state.dart';
 import 'package:tfg/models/sheet_music.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:tfg/server/sheet_music_service.dart';
@@ -237,25 +238,40 @@ class _MusicListState extends State<MusicList> {
               ),
             ],
           ),
-          Row(
-            children: [
-              const Text('Iniciar sesión'),
-              const SizedBox(width: 20),
-              FloatingActionButton.small(
-                heroTag: null,
-                onPressed: () async {
-                  await Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (context) => const LoginScreen(),
-                    ),
-                  );
-                  _getSheetMusic();
-                  setState(() {});
-                },
-                child: const Icon(Icons.login),
-              ),
-            ],
-          ),
+          if (!LoginState().isLoggedIn)
+            Row(
+              children: [
+                const Text('Iniciar sesión'),
+                const SizedBox(width: 20),
+                FloatingActionButton.small(
+                  heroTag: null,
+                  onPressed: () async {
+                    await Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (context) => const LoginScreen(),
+                      ),
+                    );
+                    _getSheetMusic();
+                    setState(() {});
+                  },
+                  child: const Icon(Icons.login),
+                ),
+              ],
+            )
+          else
+            Row(
+              children: [
+                const Text('Cerrar sesión'),
+                const SizedBox(width: 20),
+                FloatingActionButton.small(
+                  heroTag: null,
+                  onPressed: () {
+                    showSnackbar('Pendiente de implementar', context);
+                  },
+                  child: const Icon(Icons.logout),
+                ),
+              ],
+            ),
         ],
       ),
     );
