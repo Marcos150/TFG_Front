@@ -65,7 +65,12 @@ class _MusicListState extends State<MusicList> {
             if (snapshot.hasData) {
               _sheetMusicData = snapshot.data!;
               if (_sheetMusicData!.isEmpty) {
-                return const Text('Aquí verás las partituras que añadas.');
+                return Center(
+                  child: Text(
+                    'Aquí verás las partituras que añadas.',
+                    style: Theme.of(context).textTheme.displaySmall,
+                  ),
+                );
               }
               return GridView.builder(
                 itemCount: _sheetMusicData?.length ?? 0,
@@ -253,6 +258,7 @@ class _MusicListState extends State<MusicList> {
                       ),
                     );
                     _getSheetMusic();
+                    _getSheetMusicFiles();
                     setState(() {});
                   },
                   child: const Icon(Icons.login),

@@ -24,7 +24,10 @@ class RegisterScreen extends StatelessWidget {
               child: RegisterForm(),
             ),
           ),
-          const Text('¿Ya tienes cuenta?', style: TextStyle(fontSize: 28)),
+          Text(
+            '¿Ya tienes cuenta?',
+            style: Theme.of(context).textTheme.headlineLarge,
+          ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pushReplacement(

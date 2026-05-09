@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tfg/models/login_state.dart';
 import 'package:tfg/ui/profile_screen.dart';
 
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -24,16 +25,15 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       title: Text(title),
       actions: [
-        IconButton(
-          onPressed: () {
-            Navigator.of(context).push(
+        if (LoginState().isLoggedIn)
+          IconButton(
+            onPressed: () => Navigator.of(context).push(
               MaterialPageRoute<void>(
                 builder: (context) => const ProfileScreen(),
               ),
-            );
-          },
-          icon: const CircleAvatar(child: Icon(Icons.person)),
-        ),
+            ),
+            icon: const CircleAvatar(child: Icon(Icons.person)),
+          ),
       ],
       actionsPadding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
     );

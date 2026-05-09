@@ -14,7 +14,7 @@ class LoginScreen extends StatelessWidget {
       body: Column(
         spacing: 22,
         children: [
-            const FlutterLogo(size: 260),
+          const FlutterLogo(size: 260),
           const Card(
             margin: EdgeInsets.symmetric(horizontal: 80, vertical: 20),
             child: Padding(
@@ -25,7 +25,10 @@ class LoginScreen extends StatelessWidget {
               child: LoginForm(),
             ),
           ),
-          const Text('¿No tienes cuenta?', style: TextStyle(fontSize: 28)),
+          Text(
+            '¿No tienes cuenta?',
+            style: Theme.of(context).textTheme.headlineLarge,
+          ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pushReplacement(

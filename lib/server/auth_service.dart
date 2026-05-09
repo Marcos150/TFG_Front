@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tfg/models/login_state.dart';
 import 'common_service.dart';
 
 Future<String> register(String email, String password) async {
@@ -17,6 +18,7 @@ Future<String> register(String email, String password) async {
     final token = jsonDecode(response.body)['token'] as String;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', token);
+    LoginState().token = token;
     return jsonDecode(response.body)['token'] as String;
   } else {
     throw Exception('Failed to register: ${response.body}');
@@ -37,6 +39,7 @@ Future<String> login(String email, String password) async {
     final token = jsonDecode(response.body)['token'] as String;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', token);
+    LoginState().token = token;
     return jsonDecode(response.body)['token'] as String;
   } else {
     throw Exception('Failed to register: ${response.body}');
