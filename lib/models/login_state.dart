@@ -20,4 +20,16 @@ class LoginState {
     final storedToken = prefs.getString('token');
     token = storedToken;
   }
+
+  void login(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('token', token);
+    this.token = token;
+  }
+
+  void logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
+    token = null;
+  }
 }
