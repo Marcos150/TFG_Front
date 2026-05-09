@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:tfg/models/sheet_music.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:tfg/server/sheet_music_service.dart';
+import 'package:tfg/ui/common/image_viewer.dart';
 import 'package:tfg/ui/common/my_app_bar.dart';
 import 'package:tfg/ui/add_sheet_music_screen.dart';
 import 'package:tfg/ui/login_screen.dart';
@@ -22,6 +23,7 @@ class MusicList extends StatefulWidget {
 class _MusicListState extends State<MusicList> {
   late Future<List<SheetMusic>> sheetMusic;
   List<SheetMusic>? _sheetMusicData;
+  List<File>? _sheetMusicFiles;
   bool hasInternet = true;
 
   void _getSheetMusic() => sheetMusic = getAllSheetMusic().catchError((
@@ -33,12 +35,20 @@ class _MusicListState extends State<MusicList> {
       print(stackTrace);
     }
     hasInternet = false;
-    return <SheetMusic>[];
+    return const <SheetMusic>[];
   });
+
+  void _getSheetMusicFiles() async {
+    final sheetMusicList = await sheetMusic;
+    Future.wait(
+      sheetMusicList.map((sheetMusic) => getSheetMusicFile(sheetMusic.id)),
+    ).then((files) => setState(() => _sheetMusicFiles = files));
+  }
 
   @override
   void initState() {
     _getSheetMusic();
+    _getSheetMusicFiles();
     super.initState();
   }
 
@@ -52,43 +62,79 @@ class _MusicListState extends State<MusicList> {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               _sheetMusicData = snapshot.data!;
-              return ListView.builder(
-                itemBuilder: (ctx, int index) {
-                  return ListTile(
-                    leading: const CircleAvatar(),
-                    title: Text(_sheetMusicData![index].title),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            Navigator.of(context)
-                                .push(
-                                  MaterialPageRoute<SheetMusic>(
-                                    builder: (context) => AddSheetMusicScreen(
-                                      sheetMusic: _sheetMusicData![index],
+              if (_sheetMusicData!.isEmpty) {
+                return const Text('Aquí verás las partituras que añadas.');
+              }
+              return GridView.builder(
+                itemCount: _sheetMusicData?.length ?? 0,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 18,
+                  mainAxisSpacing: 18,
+                  childAspectRatio: 0.8,
+                ),
+                itemBuilder: (BuildContext context, int index) => GridTile(
+                  footer: ClipRRect(
+                    borderRadius: const BorderRadius.vertical(
+                      bottom: Radius.circular(12),
+                    ),
+                    child: GridTileBar(
+                      backgroundColor: Colors.black54,
+                      title: Text(_sheetMusicData![index].title),
+                      subtitle: Text(_sheetMusicData![index].author),
+                      trailing: Row(
+                        children: [
+                          IconButton(
+                            constraints: const BoxConstraints(),
+                            padding: EdgeInsets.zero,
+                            icon: const Icon(Icons.edit),
+                            onPressed: () {
+                              Navigator.of(context)
+                                  .push(
+                                    MaterialPageRoute<SheetMusic>(
+                                      builder: (context) => AddSheetMusicScreen(
+                                        sheetMusic: _sheetMusicData![index],
+                                      ),
                                     ),
-                                  ),
-                                )
-                                .then(
-                                  (res) => setState(
-                                    () => _sheetMusicData![index] =
-                                        res ?? _sheetMusicData![index],
-                                  ),
-                                );
-                          },
-                          icon: const Icon(Icons.edit),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            showSnackbar(
+                                  )
+                                  .then(
+                                    (res) => setState(
+                                      () => _sheetMusicData![index] =
+                                          res ?? _sheetMusicData![index],
+                                    ),
+                                  );
+                            },
+                          ),
+                          IconButton(
+                            constraints: const BoxConstraints(),
+                            padding: EdgeInsets.zero,
+                            icon: const Icon(Icons.delete),
+                            onPressed: () => showSnackbar(
                               'Partitura ${_sheetMusicData![index].title} borrada',
                               context,
-                            );
-                          },
-                          icon: const Icon(Icons.delete),
-                        ),
-                      ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  child: GestureDetector(
+                    child: Card(
+                      margin: EdgeInsets.zero,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (_sheetMusicFiles != null &&
+                              _sheetMusicFiles!.length > index)
+                            Expanded(
+                              child: ImageViewer(
+                                file: _sheetMusicFiles![index],
+                              ),
+                            )
+                          else
+                            const CircularProgressIndicator(),
+                        ],
+                      ),
                     ),
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute<SheetMusic>(
@@ -96,9 +142,8 @@ class _MusicListState extends State<MusicList> {
                             PracticeScreen(sheetMusic: _sheetMusicData![index]),
                       ),
                     ),
-                  );
-                },
-                itemCount: _sheetMusicData!.length,
+                  ),
+                ),
               );
             } else {
               return const CircularProgressIndicator();
@@ -182,7 +227,7 @@ class _MusicListState extends State<MusicList> {
                 heroTag: null,
                 onPressed: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute<SheetMusic>(
+                    MaterialPageRoute<void>(
                       builder: (context) =>
                           const PracticeScreen(sheetMusic: SheetMusic.empty()),
                     ),
@@ -198,12 +243,14 @@ class _MusicListState extends State<MusicList> {
               const SizedBox(width: 20),
               FloatingActionButton.small(
                 heroTag: null,
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute<SheetMusic>(
+                onPressed: () async {
+                  await Navigator.of(context).push(
+                    MaterialPageRoute<void>(
                       builder: (context) => const LoginScreen(),
                     ),
                   );
+                  _getSheetMusic();
+                  setState(() {});
                 },
                 child: const Icon(Icons.login),
               ),

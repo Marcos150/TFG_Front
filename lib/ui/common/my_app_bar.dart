@@ -34,7 +34,6 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ],
       actionsPadding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
-      backgroundColor: Theme.of(context).colorScheme.inversePrimary,
     );
   }
 
