@@ -45,7 +45,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
                 'Guardado en la nube',
                 'Puedes guardar tus partituras en la nube si inicias sesión.',
                 context,
-                actionLabels: ['Iniciar sesión'],
+                actionLabels: [const Text('Iniciar sesión')],
                 actions: [
                   () => Navigator.of(context).push(
                     MaterialPageRoute<void>(

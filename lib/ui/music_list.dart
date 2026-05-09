@@ -26,7 +26,6 @@ class _MusicListState extends State<MusicList> {
   late Future<List<SheetMusic>> sheetMusic;
   List<SheetMusic>? _sheetMusicData;
   List<File>? _sheetMusicFiles;
-  bool hasInternet = true;
 
   void _getSheetMusic() => sheetMusic = getAllSheetMusic().catchError((
     Object error,
@@ -36,7 +35,6 @@ class _MusicListState extends State<MusicList> {
       print(error);
       print(stackTrace);
     }
-    hasInternet = false;
     return const <SheetMusic>[];
   });
 
@@ -117,10 +115,45 @@ class _MusicListState extends State<MusicList> {
                             constraints: const BoxConstraints(),
                             padding: EdgeInsets.zero,
                             icon: const Icon(Icons.delete),
-                            onPressed: () => showSnackbar(
-                              'Partitura ${_sheetMusicData![index].title} borrada',
-                              context,
-                            ),
+                            onPressed: () {
+                              myShowDialog(
+                                'Eliminar partitura',
+                                '¿Seguro que quieres eliminar esta partitura?',
+                                context,
+                                actionLabels: [
+                                  const Text('Cancelar'),
+                                  Text(
+                                    'Borrar',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelLarge!
+                                        .copyWith(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.error,
+                                        ),
+                                  ),
+                                ],
+                                actions: [
+                                  () => showSnackbar(
+                                    'Borrado cancelado',
+                                    context,
+                                  ),
+                                  () async {
+                                    await deleteSheetMusic(
+                                      _sheetMusicData![index].id,
+                                    );
+                                    showSnackbar(
+                                      'Partitura ${_sheetMusicData![index].title} borrada',
+                                      context,
+                                    );
+                                    setState(
+                                      () => _sheetMusicData?.removeAt(index),
+                                    );
+                                  },
+                                ],
+                              );
+                            },
                           ),
                         ],
                       ),
@@ -278,7 +311,7 @@ class _MusicListState extends State<MusicList> {
                 ),
               ],
             )
-          else
+          else // TODO: Check if there is internet connection to show this.
             Row(
               children: [
                 const Text(

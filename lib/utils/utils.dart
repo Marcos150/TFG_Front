@@ -33,7 +33,7 @@ void myShowDialog(
   final String title,
   final String content,
   final BuildContext context, {
-  final List<String>? actionLabels,
+  final List<Widget>? actionLabels,
   final List<VoidCallback>? actions,
 }) {
   assert(
@@ -55,7 +55,7 @@ void myShowDialog(
             Navigator.of(context).pop();
             if (actions?[index] != null) actions?[index]();
           },
-          child: Text(actionLabels?[index] ?? 'OK'),
+          child: actionLabels?[index] ?? const Text('OK'),
         ),
       ),
     ),

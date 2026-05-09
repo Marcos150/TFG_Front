@@ -129,3 +129,22 @@ Future<File> getSheetMusicFile(int id) async {
     return (await getStoredSheetMusicFile(id))!;
   }
 }
+
+Future<void> deleteSheetMusic(int id) async {
+  final headersAuth = await getAuthHeader();
+  deleteLocalSheetMusic(id);
+  setPendingUpload(true);
+  try {
+    final response = await http.delete(
+      Uri.parse('$_url/$id'),
+      headers: headersAuth,
+    );
+
+    if (response.statusCode == 204) {
+      setPendingUpload(false);
+      return;
+    }
+  } catch (_) {
+    return;
+  }
+}

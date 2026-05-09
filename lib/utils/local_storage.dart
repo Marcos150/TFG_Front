@@ -157,6 +157,33 @@ Future<List<SheetMusic>> getNewestSheetMusicList(
     }
   }
 
+  final sheetMusicToDelete = oldestList.where(
+    (oldest) => !newestList.any((newest) => newest.id == oldest.id),
+  );
+  for (final sheetMusic in sheetMusicToDelete) {
+    if (pendingUpload) {
+      deleteSheetMusic(sheetMusic.id);
+    } else {
+      deleteLocalSheetMusic(sheetMusic.id);
+    }
+  }
+
   setPendingUpload(false);
   return result;
+}
+
+Future<void> deleteLocalSheetMusic(int id) async {
+  final prefs = await SharedPreferences.getInstance();
+  final storedData = prefs.getString(sheetMusicListKey);
+
+  if (storedData != null) {
+    final list = jsonDecode(storedData);
+    list.removeWhere((dynamic sheetMusic) => sheetMusic['id'] == id);
+    prefs.setString(sheetMusicListKey, jsonEncode(list));
+  }
+
+  final file = await getStoredSheetMusicFile(id);
+  if (file != null && file.existsSync()) {
+    file.delete();
+  }
 }
