@@ -15,10 +15,16 @@ void showSnackbar(
   final String text,
   final BuildContext context, {
   final int duration = 2,
+  final String? actionLabel,
+  final VoidCallback? action,
 }) {
   final snackBar = SnackBar(
     duration: Duration(seconds: duration),
     content: Text(text),
+    action: SnackBarAction(
+      label: actionLabel ?? '',
+      onPressed: action ?? () {},
+    ),
   );
   ScaffoldMessenger.of(context).showSnackBar(snackBar);
 }

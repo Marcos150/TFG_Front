@@ -3,14 +3,14 @@ import 'dart:io' show File;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
+import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:tfg/models/login_state.dart';
 import 'package:tfg/models/sheet_music.dart';
-import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:tfg/server/auth_service.dart';
 import 'package:tfg/server/sheet_music_service.dart';
+import 'package:tfg/ui/add_sheet_music_screen.dart';
 import 'package:tfg/ui/common/image_viewer.dart';
 import 'package:tfg/ui/common/my_app_bar.dart';
-import 'package:tfg/ui/add_sheet_music_screen.dart';
 import 'package:tfg/ui/login_screen.dart';
 import 'package:tfg/ui/practice_screen.dart';
 import 'package:tfg/utils/utils.dart' hide FileType;
@@ -27,6 +27,19 @@ class _MusicListState extends State<MusicList> {
   List<SheetMusic>? _sheetMusicData;
   List<File>? _sheetMusicFiles;
   bool hasInternet = true;
+
+  void checkLogin() {
+    if (!LoginState().isLoggedIn) {
+      showSnackbar(
+        'Inicia sesión par guardar tus partituras en la nube',
+        context,
+        actionLabel: 'Iniciar sesión',
+        action: () => Navigator.of(context).push(
+          MaterialPageRoute<void>(builder: (context) => const LoginScreen()),
+        ),
+      );
+    }
+  }
 
   void _getSheetMusic() => sheetMusic = getAllSheetMusic().catchError((
     Object error,
@@ -45,6 +58,9 @@ class _MusicListState extends State<MusicList> {
     Future.wait(
       sheetMusicList.map((sheetMusic) => getSheetMusicFile(sheetMusic.id)),
     ).then((files) => setState(() => _sheetMusicFiles = files));
+
+    // TODO: This should be placed in a better place
+    checkLogin();
   }
 
   @override
