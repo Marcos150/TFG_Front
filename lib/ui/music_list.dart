@@ -28,19 +28,6 @@ class _MusicListState extends State<MusicList> {
   List<File>? _sheetMusicFiles;
   bool hasInternet = true;
 
-  void checkLogin() {
-    if (!LoginState().isLoggedIn) {
-      showSnackbar(
-        'Inicia sesión par guardar tus partituras en la nube',
-        context,
-        actionLabel: 'Iniciar sesión',
-        action: () => Navigator.of(context).push(
-          MaterialPageRoute<void>(builder: (context) => const LoginScreen()),
-        ),
-      );
-    }
-  }
-
   void _getSheetMusic() => sheetMusic = getAllSheetMusic().catchError((
     Object error,
     StackTrace stackTrace,
@@ -58,9 +45,6 @@ class _MusicListState extends State<MusicList> {
     Future.wait(
       sheetMusicList.map((sheetMusic) => getSheetMusicFile(sheetMusic.id)),
     ).then((files) => setState(() => _sheetMusicFiles = files));
-
-    // TODO: This should be placed in a better place
-    checkLogin();
   }
 
   @override
@@ -156,7 +140,7 @@ class _MusicListState extends State<MusicList> {
                               ),
                             )
                           else
-                            const CircularProgressIndicator(),
+                            const Center(child: CircularProgressIndicator()),
                         ],
                       ),
                     ),

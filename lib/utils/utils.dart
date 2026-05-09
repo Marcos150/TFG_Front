@@ -14,7 +14,7 @@ import 'OnnxRT.dart';
 void showSnackbar(
   final String text,
   final BuildContext context, {
-  final int duration = 2,
+  final int duration = 4,
   final String? actionLabel,
   final VoidCallback? action,
 }) {
@@ -27,6 +27,39 @@ void showSnackbar(
     ),
   );
   ScaffoldMessenger.of(context).showSnackBar(snackBar);
+}
+
+void myShowDialog(
+  final String title,
+  final String content,
+  final BuildContext context, {
+  final List<String>? actionLabels,
+  final List<VoidCallback>? actions,
+}) {
+  assert(
+    actionLabels?.length == actions?.length,
+    'ActionLabel and actions must have the same length',
+  );
+
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+    pageBuilder: (context, _, _) => AlertDialog(
+      title: Text(title),
+      content: Text(content),
+      actions: List.generate(
+        actions?.length ?? 0,
+        (index) => TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+            if (actions?[index] != null) actions?[index]();
+          },
+          child: Text(actionLabels?[index] ?? 'OK'),
+        ),
+      ),
+    ),
+  );
 }
 
 String _getFileExtension(final File file) => file.path.split('.').last;

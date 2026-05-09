@@ -59,15 +59,12 @@ class _LoginFormState extends State<LoginForm> {
             onPressed: () async {
               if (_formKey.currentState!.validate()) {
                 try {
-                  await login(
-                    _emailController.text,
-                    _passwordController.text,
-                  );
+                  await login(_emailController.text, _passwordController.text);
                   showSnackbar('Inicio de sesión exitoso', context);
                   Navigator.of(context).pop();
                 } catch (_) {
                   showSnackbar(
-                    'Error al iniciar sesión. Inténtalo de nuevo más tarde',
+                    'Error al iniciar sesión. Comprueba tus credenciales e inténtalo de nuevo.',
                     context,
                   );
                 }
