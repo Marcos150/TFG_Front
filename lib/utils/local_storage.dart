@@ -45,6 +45,24 @@ Future<SheetMusic> storeSheetMusic(SheetMusic sheetMusic, {File? file}) async {
   return sheetMusic;
 }
 
+Future<SheetMusic> updateStoredSheetMusic(SheetMusic sheetMusic) async {
+  final prefs = await SharedPreferences.getInstance();
+  final storedData = prefs.getString(sheetMusicListKey);
+
+  if (storedData != null) {
+    final list = jsonDecode(storedData);
+    for (int i = 0; i < list.length; i++) {
+      if (list[i]['id'] == sheetMusic.id) {
+        list[i] = sheetMusic.toJson();
+        break;
+      }
+    }
+    prefs.setString(sheetMusicListKey, jsonEncode(list));
+  }
+
+  return sheetMusic;
+}
+
 Future<File> storeSheetMusicFile(
   int id,
   List<int> fileBytes,

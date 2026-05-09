@@ -59,24 +59,27 @@ class _PracticeScreenState extends State<PracticeScreen> {
       appBar: MyAppBar(title: widget.sheetMusic.title),
       body: Center(
         child: Column(
+          spacing: 12,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: 24,
               children: [
                 MaintainedPressDetector(
+                  enabled: !PlayingState().isPlaying,
                   frequency: const Duration(milliseconds: 100),
                   whileLongPress: () {
                     _metronome.setBPM(--_bpm);
                     setState(() {});
                   },
                   child: IconButton.outlined(
-                    onPressed: () {
-                      _metronome.setBPM(--_bpm);
-                      setState(() {});
-                    },
+                    onPressed: PlayingState().isPlaying
+                        ? null
+                        : () {
+                            _metronome.setBPM(--_bpm);
+                            setState(() {});
+                          },
                     icon: const Icon(Icons.remove, size: 36),
                   ),
                 ),
@@ -95,55 +98,57 @@ class _PracticeScreenState extends State<PracticeScreen> {
                   ),
                 ),
                 MaintainedPressDetector(
+                  enabled: !PlayingState().isPlaying,
                   frequency: const Duration(milliseconds: 100),
                   whileLongPress: () {
                     _metronome.setBPM(++_bpm);
                     setState(() {});
                   },
                   child: IconButton.outlined(
-                    onPressed: () {
-                      _metronome.setBPM(++_bpm);
-                      setState(() {});
-                    },
+                    onPressed: PlayingState().isPlaying
+                        ? null
+                        : () {
+                            _metronome.setBPM(++_bpm);
+                            setState(() {});
+                          },
                     icon: const Icon(Icons.add, size: 36),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.music_note, size: 42),
-                Text('= $_bpm', style: const TextStyle(fontSize: 32)),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              spacing: 8,
-              children: [
-                ...List<Widget>.generate(4, (int index) {
-                  return ChoiceChip(
-                    label: Text(
-                      (index + 1).toString(),
-                      style: const TextStyle(fontSize: 18),
-                    ),
-                    selected: PlayingState().beatsPerMeasure == index + 1,
-                    onSelected: PlayingState().isPlaying
-                        ? null
-                        : (bool selected) {
-                            setState(() {
-                              _metronome.setTimeSignature(
-                                PlayingState().beatsPerMeasure = index + 1,
-                              );
-                            });
-                          },
-                  );
-                }),
-              ],
-            ),
-            const SizedBox(height: 12),
+            if (!PlayingState().isPlaying)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.music_note, size: 42),
+                  Text('= $_bpm', style: const TextStyle(fontSize: 32)),
+                ],
+              ),
+            if (!PlayingState().isPlaying)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                spacing: 8,
+                children: [
+                  ...List<Widget>.generate(4, (int index) {
+                    return ChoiceChip(
+                      label: Text(
+                        (index + 1).toString(),
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                      selected: PlayingState().beatsPerMeasure == index + 1,
+                      onSelected: PlayingState().isPlaying
+                          ? null
+                          : (bool selected) {
+                              setState(() {
+                                _metronome.setTimeSignature(
+                                  PlayingState().beatsPerMeasure = index + 1,
+                                );
+                              });
+                            },
+                    );
+                  }),
+                ],
+              ),
             if (_sheetMusicFile != null)
               Flexible(
                 child: ImageViewer(

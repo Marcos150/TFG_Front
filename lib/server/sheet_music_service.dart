@@ -67,8 +67,8 @@ Future<SheetMusic> createSheetMusic(SheetMusic sheetMusic, File file) async {
     if (response.statusCode == 201) {
       setPendingUpload(false);
       final res = SheetMusic.fromJson(
-        jsonDecode(await response.stream.bytesToString()) as Map<String,
-            dynamic>,
+        jsonDecode(await response.stream.bytesToString())
+            as Map<String, dynamic>,
       );
       return res;
     }
@@ -80,21 +80,29 @@ Future<SheetMusic> createSheetMusic(SheetMusic sheetMusic, File file) async {
 }
 
 Future<SheetMusic> editSheetMusic(SheetMusic sheetMusic) async {
-  final response = await http.put(
-    Uri.parse('$_url/${sheetMusic.id}'),
-    headers: headersBoth,
-    body: jsonEncode(sheetMusic),
-  );
+  final authHeader = await getAuthHeader();
+  authHeader['Content-Type'] = 'application/json; charset=UTF-8';
 
+  final storedSheetMusic = updateStoredSheetMusic(sheetMusic);
   setPendingUpload(true);
 
-  if (response.statusCode == 200) {
-    setPendingUpload(false);
-    return SheetMusic.fromJson(
-      jsonDecode(response.body) as Map<String, dynamic>,
+  try {
+    final response = await http.put(
+      Uri.parse('$_url/${sheetMusic.id}'),
+      headers: authHeader,
+      body: jsonEncode(sheetMusic),
     );
-  } else {
-    throw Exception('Failed to edit sheet music: ${response.body}');
+
+    if (response.statusCode == 200) {
+      setPendingUpload(false);
+      return SheetMusic.fromJson(
+        jsonDecode(response.body) as Map<String, dynamic>,
+      );
+    } else {
+      return storedSheetMusic;
+    }
+  } catch (_) {
+    return storedSheetMusic;
   }
 }
 

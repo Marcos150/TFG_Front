@@ -4,12 +4,14 @@ class MaintainedPressDetector extends StatefulWidget {
   final Widget? child;
   final Duration frequency;
   final VoidCallback whileLongPress;
+  final bool enabled;
 
   const MaintainedPressDetector({
     super.key,
     this.child,
     this.frequency = const Duration(milliseconds: 500),
     required this.whileLongPress,
+    this.enabled = true,
   });
 
   @override
@@ -32,11 +34,13 @@ class _MaintainedPressDetectorState extends State<MaintainedPressDetector> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onLongPress: () {
-        _buttonPressed = true;
-        _increaseCounterWhilePressed();
-      },
-      onLongPressUp: () => _buttonPressed = false,
+      onLongPress: widget.enabled
+          ? () {
+              _buttonPressed = true;
+              _increaseCounterWhilePressed();
+            }
+          : null,
+      onLongPressUp: widget.enabled ? () => _buttonPressed = false : null,
       child: widget.child,
     );
   }

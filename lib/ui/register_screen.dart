@@ -13,12 +13,19 @@ class RegisterScreen extends StatelessWidget {
       body: Column(
         spacing: 22,
         children: [
-          const RegisterForm(),
-          const Text(
-            '¿Ya tienes una cuenta?',
-            style: TextStyle(fontSize: 28),
+          const FlutterLogo(size: 260),
+          const Card(
+            margin: EdgeInsets.symmetric(horizontal: 80, vertical: 20),
+            child: Padding(
+              padding: EdgeInsetsGeometry.symmetric(
+                horizontal: 80,
+                vertical: 40,
+              ),
+              child: RegisterForm(),
+            ),
           ),
-          FilledButton(
+          const Text('¿Ya tienes cuenta?', style: TextStyle(fontSize: 28)),
+          ElevatedButton(
             onPressed: () {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute<void>(builder: (_) => const LoginScreen()),

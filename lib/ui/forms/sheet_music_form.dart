@@ -204,7 +204,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
               ),
             ],
           ),
-          ElevatedButton.icon(
+          FilledButton.icon(
             onPressed: () async {
               if (_formKey.currentState!.validate()) {
                 try {
