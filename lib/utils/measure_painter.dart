@@ -25,12 +25,12 @@ class MeasurePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.red.withAlpha(127)
+      ..color = Colors.blue.withAlpha(127)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.0;
 
     final fillPaint = Paint()
-      ..color = Colors.red.withAlpha(hideMeasures ? 255 : 25)
+      ..color = Colors.blue.withAlpha(hideMeasures ? 255 : 25)
       ..style = PaintingStyle.fill;
 
     final currentMeasure = PlayingState().currentMeasure;
