@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:tfg/models/login_state.dart';
+
 import 'common_service.dart';
 import 'package:http/http.dart' as http;
 
@@ -24,4 +26,18 @@ getProfileInfo() async {
           throw Exception('Failed to load profile info: ${response.body}');
         }
       });
+}
+
+Future<void> deleteAccount() async {
+  final authHeaderFuture = await getAuthHeader();
+  final response = await http.delete(
+    Uri.parse('$urlCommon/profile'),
+    headers: authHeaderFuture,
+  );
+
+  if (response.statusCode == 204) {
+    LoginState().logout();
+  } else {
+    throw Exception('Failed to delete account: ${response.body}');
+  }
 }

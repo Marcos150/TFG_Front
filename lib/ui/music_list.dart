@@ -23,23 +23,23 @@ class MusicList extends StatefulWidget {
 }
 
 class _MusicListState extends State<MusicList> {
-  late Future<List<SheetMusic>> sheetMusic;
   List<SheetMusic>? _sheetMusicData;
   List<File>? _sheetMusicFiles;
 
-  void _getSheetMusic() => sheetMusic = getAllSheetMusic().catchError((
-    Object error,
-    StackTrace stackTrace,
-  ) {
-    if (kDebugMode) {
-      print(error);
-      print(stackTrace);
-    }
-    return const <SheetMusic>[];
-  });
+  Future<List<SheetMusic>> _getSheetMusic() async =>
+      _sheetMusicData = await getAllSheetMusic().catchError((
+        Object error,
+        StackTrace stackTrace,
+      ) {
+        if (kDebugMode) {
+          print(error);
+          print(stackTrace);
+        }
+        return const <SheetMusic>[];
+      });
 
-  void _getSheetMusicFiles() async {
-    final sheetMusicList = await sheetMusic;
+  Future<void> _getSheetMusicFiles() async {
+    final sheetMusicList = await _getSheetMusic();
     Future.wait(
       sheetMusicList.map((sheetMusic) => getSheetMusicFile(sheetMusic.id)),
     ).then((files) => setState(() => _sheetMusicFiles = files));
@@ -55,14 +55,15 @@ class _MusicListState extends State<MusicList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const MyAppBar(title: 'Mis partituras'),
+      // Can't make appBar const because of login icon
+      // Next time I should use proper state management
+      appBar: MyAppBar(title: 'Mis partituras'),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: FutureBuilder(
-          future: sheetMusic,
+          future: _getSheetMusic(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              _sheetMusicData = snapshot.data!;
               if (_sheetMusicData!.isEmpty) {
                 return Center(
                   child: Text(
@@ -305,7 +306,6 @@ class _MusicListState extends State<MusicList> {
                     );
                     _getSheetMusic();
                     _getSheetMusicFiles();
-                    setState(() {});
                   },
                   child: const Icon(Icons.login),
                 ),

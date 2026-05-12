@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:tfg/server/user_service.dart';
 import 'package:tfg/ui/common/my_app_bar.dart';
 
+import '../utils/utils.dart';
+
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -122,7 +124,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     style: FilledButton.styleFrom(
                       backgroundColor: colorScheme.error,
                     ),
-                    onPressed: () {},
+                    onPressed: () async {
+                      myShowDialog(
+                        'Borrar cuenta',
+                        '¿Seguro que quieres borrar tu cuenta?',
+                        context,
+                        actionLabels: [
+                          const Text('Cancelar'),
+                          Text(
+                            'Borrar',
+                            style: Theme.of(context).textTheme.labelLarge!
+                                .copyWith(
+                                  color: Theme.of(context).colorScheme.error,
+                                ),
+                          ),
+                        ],
+                        actions: [
+                          () => showSnackbar('Borrado cancelado', context),
+                          () async {
+                            await deleteAccount();
+                            showSnackbar('Cuenta borrada con éxito', context);
+                            Navigator.of(context).pop();
+                          },
+                        ],
+                      );
+                    },
                     label: const Text('Borrar cuenta'),
                   ),
                 ],
