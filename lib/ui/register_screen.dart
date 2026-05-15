@@ -13,7 +13,7 @@ class RegisterScreen extends StatelessWidget {
       body: Column(
         spacing: 22,
         children: [
-          const FlutterLogo(size: 260),
+          Image.asset('assets/icon/icon.png', height: 260),
           const Card(
             margin: EdgeInsets.symmetric(horizontal: 80, vertical: 20),
             child: Padding(
