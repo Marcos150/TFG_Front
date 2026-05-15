@@ -260,7 +260,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
           else if (_errorGettingFile)
             const Text('Error al cargar la partitura')
           else if (_file != null)
-            Expanded(
+            Flexible(
               child: ImageViewer(file: _file!, measures: _measures),
             ),
         ],
