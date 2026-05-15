@@ -24,13 +24,12 @@ class _PracticeScreenState extends State<PracticeScreen> {
   int _bpm = 120;
   final _metronome = Metronome();
   late final StreamSubscription<int> _tickSubscription;
-  bool _errorGettingFile = false;
 
   @override
   void initState() {
-    getSheetMusicFile(widget.sheetMusic.id)
-        .then((value) => setState(() => _sheetMusicFile = value))
-        .catchError((_) => setState(() => _errorGettingFile = true));
+    getSheetMusicFile(
+      widget.sheetMusic.id,
+    ).then((value) => setState(() => _sheetMusicFile = value));
 
     _metronome.init(
       'assets/audio/metronome.wav',
@@ -156,11 +155,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
                   measures: widget.sheetMusic.measures,
                   hideMeasures: PlayingState().isPlaying,
                 ),
-              ),
-            if (_errorGettingFile)
-              const Text(
-                'Error al cargar la partitura.',
-                style: TextStyle(color: Colors.red, fontSize: 18),
               ),
           ],
         ),
