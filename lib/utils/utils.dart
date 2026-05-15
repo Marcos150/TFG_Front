@@ -11,6 +11,7 @@ import 'dart:typed_data';
 import 'package:tfg/models/measure.dart';
 
 import 'OnnxRT.dart';
+import 'sheet_music_file_type.dart';
 
 void showSnackbar(
   final String text,
@@ -61,24 +62,6 @@ void myShowDialog(
       ),
     ),
   );
-}
-
-String _getFileExtension(final File file) => file.path.split('.').last;
-
-enum FileType { pdf, image, other }
-
-FileType getFileType(final File file) {
-  final extension = _getFileExtension(file);
-  switch (extension) {
-    case 'pdf':
-      return FileType.pdf;
-    case 'jpg':
-    case 'jpeg':
-    case 'png':
-      return FileType.image;
-    default:
-      return FileType.other;
-  }
 }
 
 Future<ImageScanResult?> scanAsPdf() async {
@@ -140,10 +123,10 @@ Uint8List _preprocessImage(img.Image image) {
 
 Future<List<Measure>> findMeasures(final File image) async {
   final fileType = getFileType(image);
-  if (fileType == FileType.other) return [];
+  if (fileType == SheetMusicFileType.other) return [];
 
   final img.Image? originalImage;
-  if (fileType == FileType.pdf) {
+  if (fileType == SheetMusicFileType.pdf) {
     originalImage = await pdfToImage(image);
   } else {
     final Uint8List imageBytes = await image.readAsBytes();

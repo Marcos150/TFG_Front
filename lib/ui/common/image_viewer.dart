@@ -3,8 +3,8 @@ import 'dart:io' show File;
 import 'package:flutter/material.dart';
 import 'package:pdfx/pdfx.dart';
 import 'package:tfg/models/measure.dart';
-import 'package:tfg/utils/utils.dart';
 
+import '../../utils/sheet_music_file_type.dart';
 import '../../utils/measure_painter.dart';
 
 class ImageViewer extends StatefulWidget {
@@ -24,7 +24,7 @@ class ImageViewer extends StatefulWidget {
 }
 
 class _ImageViewerState extends State<ImageViewer> {
-  late final _controller = getFileType(widget.file) == FileType.pdf
+  late final _controller = getFileType(widget.file) == SheetMusicFileType.pdf
       ? PdfController(document: PdfDocument.openFile(widget.file.path))
       : null;
   double? _pdfHeight;
@@ -44,7 +44,7 @@ class _ImageViewerState extends State<ImageViewer> {
 
   @override
   void initState() {
-    if (getFileType(widget.file) == FileType.pdf) {
+    if (getFileType(widget.file) == SheetMusicFileType.pdf) {
       _calculateHeight();
     }
     super.initState();
@@ -55,12 +55,12 @@ class _ImageViewerState extends State<ImageViewer> {
     Widget content = const Placeholder();
     final extension = getFileType(widget.file);
 
-    if (extension == FileType.pdf) {
+    if (extension == SheetMusicFileType.pdf) {
       content = SizedBox(
         height: _pdfHeight,
         child: AbsorbPointer(child: PdfView(controller: _controller!)),
       );
-    } else if (extension == FileType.image) {
+    } else if (extension == SheetMusicFileType.image) {
       content = Image.file(
         File(widget.file.path),
         alignment: AlignmentGeometry.topCenter,

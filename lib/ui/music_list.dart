@@ -13,7 +13,7 @@ import 'package:tfg/ui/common/image_viewer.dart';
 import 'package:tfg/ui/common/my_app_bar.dart';
 import 'package:tfg/ui/login_screen.dart';
 import 'package:tfg/ui/practice_screen.dart';
-import 'package:tfg/utils/utils.dart' hide FileType;
+import 'package:tfg/utils/utils.dart';
 
 class MusicList extends StatefulWidget {
   const MusicList({super.key});
@@ -57,6 +57,7 @@ class _MusicListState extends State<MusicList> {
     return Scaffold(
       // Can't make appBar const because of login icon
       // Next time I should use proper state management
+      // ignore: prefer_const_constructors
       appBar: MyAppBar(title: 'Mis partituras'),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -203,7 +204,7 @@ class _MusicListState extends State<MusicList> {
           Row(
             children: [
               const Text(
-                'Importar PDF',
+                'Importar partitura',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(width: 20),
@@ -212,7 +213,7 @@ class _MusicListState extends State<MusicList> {
                 onPressed: () async {
                   final FilePickerResult? result = await FilePicker.pickFiles(
                     type: FileType.custom,
-                    allowedExtensions: ['pdf', 'jpeg', 'jpg', 'png'],
+                    allowedExtensions: ['pdf', 'jpeg', 'jpg', 'png', 'webp'],
                   );
                   if (result != null) {
                     final File file = File(result.files.single.path!);
