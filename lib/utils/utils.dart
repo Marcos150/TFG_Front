@@ -1,5 +1,6 @@
 import 'dart:io' show File;
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_doc_scanner/flutter_doc_scanner.dart';
 import 'package:flutter_onnxruntime/flutter_onnxruntime.dart' show OrtValue;
@@ -85,7 +86,9 @@ Future<ImageScanResult?> scanAsPdf() async {
     final result = await FlutterDocScanner().getScannedDocumentAsImages();
     return result;
   } on DocScanException catch (e) {
-    print('Scan failed: ${e.code} - ${e.message}');
+    if (kDebugMode) {
+      print('Scan failed: ${e.code} - ${e.message}');
+    }
   }
 
   return null;
@@ -110,6 +113,25 @@ Future<img.Image?> pdfToImage(File pdfPath, {int numPage = 1}) async {
   }
 
   return null;
+}
+
+List<Measure> _removeOverlappingMeasures(List<Measure> measures) {
+  final List<Measure> nonOverlapping = [];
+
+  for (final measure in measures) {
+    bool overlaps = false;
+    for (final existing in nonOverlapping) {
+      if (measure.overlapsWithMargin(existing, 0.02)) {
+        overlaps = true;
+        break;
+      }
+    }
+    if (!overlaps) {
+      nonOverlapping.add(measure);
+    }
+  }
+
+  return nonOverlapping;
 }
 
 Uint8List _preprocessImage(img.Image image) {
@@ -150,17 +172,15 @@ Future<List<Measure>> findMeasures(final File image) async {
   final List<dynamic>? boxesRaw = await outputs['detection_boxes:0']?.asList();
   final List<dynamic>? scoresRaw = await outputs['detection_scores:0']
       ?.asList();
-  final List<dynamic>? classesRaw = await outputs['detection_classes:0']
-      ?.asList();
 
   final List<Measure> rects = [];
 
-  if (boxesRaw != null && scoresRaw != null && classesRaw != null) {
+  if (boxesRaw != null && scoresRaw != null) {
     final List<dynamic> boxes = boxesRaw[0];
     final List<double> scores = scoresRaw[0];
 
     for (int i = 0; i < boxes.length; i++) {
-      if (scores[i] > 0.5) {
+      if (scores[i] > 0.25) {
         final List<dynamic> box = boxes[i];
 
         final double y1 = box[0];
@@ -173,5 +193,6 @@ Future<List<Measure>> findMeasures(final File image) async {
     }
   }
 
-  return rects;
+  final result = _removeOverlappingMeasures(rects);
+  return result;
 }

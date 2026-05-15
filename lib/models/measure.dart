@@ -14,4 +14,20 @@ class Measure extends Rect {
       _$MeasureFromJson(json);
 
   Map<String, dynamic> toJson() => _$MeasureToJson(this);
+
+  bool overlapsWithMargin(Rect other, double margin) {
+    final reducedThis = Rect.fromLTRB(
+      left + margin,
+      top + margin,
+      right - margin,
+      bottom - margin,
+    );
+    final reducedOther = Rect.fromLTRB(
+      other.left + margin,
+      other.top + margin,
+      other.right - margin,
+      other.bottom - margin,
+    );
+    return reducedThis.overlaps(reducedOther);
+  }
 }
