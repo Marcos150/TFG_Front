@@ -34,87 +34,113 @@ class _EditMeasuresScreenState extends State<EditMeasuresScreen> {
         title: 'Editar compases',
         onBackPressed: () => Navigator.of(context).pop(_measures),
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) => GestureDetector(
-          onPanStart: (details) {
-            _showRemoveOption = false;
-            _startPos = details.localPosition;
+      body: Column(
+        spacing: 16,
+        children: [
+          LayoutBuilder(
+            builder: (context, constraints) => GestureDetector(
+              onPanStart: (details) {
+                _showRemoveOption = false;
+                _startPos = details.localPosition;
 
-            final RenderBox box = context.findRenderObject() as RenderBox;
-            final globalScaledStartPos = Offset(
-              _startPos!.dx / box.size.width,
-              _startPos!.dy / box.size.height,
-            );
+                final RenderBox box = context.findRenderObject() as RenderBox;
+                final scaledStartPos = Offset(
+                  _startPos!.dx / box.size.width,
+                  _startPos!.dy / box.size.height,
+                );
 
-            _rectToRemove = _measures.firstWhere(
-              (rect) => rect.contains(globalScaledStartPos),
-              orElse: () => const Measure(0, 0, 0, 0),
-            );
+                _rectToRemove = _measures.firstWhere(
+                  (rect) => rect.contains(scaledStartPos),
+                  orElse: () => const Measure(0, 0, 0, 0),
+                );
 
-            if (_rectToRemove != const Measure(0, 0, 0, 0)) {
-              setState(() => _showRemoveOption = true);
-              return;
-            }
+                if (_rectToRemove != const Measure(0, 0, 0, 0)) {
+                  setState(() => _showRemoveOption = true);
+                  return;
+                }
 
-            setState(() {
-              _currentPos = details.localPosition;
-            });
-          },
-          onPanUpdate: (details) {
-            if (!_showRemoveOption) {
-              setState(() => _currentPos = details.localPosition);
-            }
-          },
-          onPanEnd: (details) {
-            if (_startPos != null && _currentPos != null && !_showRemoveOption) {
-              final selectionRect = Rect.fromPoints(_startPos!, _currentPos!);
-              if (selectionRect.longestSide < 20) return;
+                setState(() {
+                  _currentPos = details.localPosition;
+                });
+              },
+              onPanUpdate: (details) {
+                if (!_showRemoveOption) {
+                  setState(() => _currentPos = details.localPosition);
+                }
+              },
+              onPanEnd: (details) {
+                if (_startPos != null &&
+                    _currentPos != null &&
+                    !_showRemoveOption) {
+                  final selectionRect = Rect.fromPoints(
+                    _startPos!,
+                    _currentPos!,
+                  );
+                  if (selectionRect.longestSide < 20) return;
 
-              final RenderBox box = context.findRenderObject() as RenderBox;
-              final size = box.size;
+                  final RenderBox box = context.findRenderObject() as RenderBox;
+                  final size = box.size;
 
-              final scaledStart = Offset(
-                _startPos!.dx / size.width,
-                _startPos!.dy / size.height,
-              );
+                  final scaledStart = Offset(
+                    _startPos!.dx / size.width,
+                    _startPos!.dy / size.height,
+                  );
 
-              final scaledEnd = Offset(
-                _currentPos!.dx / size.width,
-                _currentPos!.dy / size.height,
-              );
+                  final scaledEnd = Offset(
+                    _currentPos!.dx / size.width,
+                    _currentPos!.dy / size.height,
+                  );
 
-              final scaledRect = Measure.fromPoints(scaledStart, scaledEnd);
+                  final scaledRect = Measure.fromPoints(scaledStart, scaledEnd);
 
-              _measures.add(scaledRect);
+                  _measures.add(scaledRect);
 
-              setState(() => _currentPos = null);
-            }
-          },
-          child: Stack(
+                  setState(() => _currentPos = null);
+                }
+              },
+              child: Stack(
+                children: [
+                  ImageViewer(file: widget.file, measures: _measures),
+
+                  if (_startPos != null &&
+                      _currentPos != null &&
+                      !_showRemoveOption)
+                    CustomPaint(
+                      painter: MeasurePainter.fromOffsets(
+                        _startPos!,
+                        _currentPos!,
+                      ),
+                    ),
+
+                  if (_showRemoveOption)
+                    Positioned(
+                      left: _startPos!.dx - 22,
+                      top: _startPos!.dy - 50,
+                      child: IconButton.filled(
+                        onPressed: () {
+                          _measures.remove(_rectToRemove);
+                          _startPos = null;
+                          setState(() => _showRemoveOption = false);
+                        },
+                        icon: const Icon(Icons.delete),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: 16,
             children: [
-              ImageViewer(file: widget.file, measures: _measures),
-
-              if (_startPos != null && _currentPos != null && !_showRemoveOption)
-                CustomPaint(
-                  painter: MeasurePainter.fromOffsets(_startPos!, _currentPos!),
-                ),
-
-              if (_showRemoveOption)
-                Positioned(
-                  left: _startPos!.dx - 22,
-                  top: _startPos!.dy - 50,
-                  child: IconButton.filled(
-                    onPressed: () {
-                      _measures.remove(_rectToRemove);
-                      _startPos = null;
-                      setState(() => _showRemoveOption = false);
-                    },
-                    icon: const Icon(Icons.delete),
-                  ),
-                ),
+              FilledButton.icon(
+                onPressed: () => Navigator.of(context).pop(_measures),
+                label: const Text('Guardar'),
+                icon: const Icon(Icons.save_alt),
+              ),
             ],
           ),
-        ),
+        ],
       ),
     );
   }

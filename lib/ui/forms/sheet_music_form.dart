@@ -75,6 +75,7 @@ class SheetMusicFormState extends State<SheetMusicForm> {
     return Form(
       key: _formKey,
       child: Column(
+        spacing: 6,
         children: <Widget>[
           Row(
             children: <Widget>[
@@ -174,11 +175,19 @@ class SheetMusicFormState extends State<SheetMusicForm> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             spacing: 16,
             children: [
+              FilledButton.icon(
+                onPressed: () async {
+                  setState(() => _isLoadingMeasures = true);
+                  _measures = await findMeasures(_file!);
+                  setState(() => _isLoadingMeasures = false);
+                },
+                icon: const Icon(Icons.smart_toy),
+                label: const Text('Detectar compases'),
+              ),
               FilledButton.icon(
                 onPressed: () {
                   Navigator.of(context)
@@ -197,18 +206,8 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                 icon: const Icon(Icons.edit),
                 label: const Text('Editar compases'),
               ),
-              FilledButton.icon(
-                onPressed: () async {
-                  setState(() => _isLoadingMeasures = true);
-                  _measures = await findMeasures(_file!);
-                  setState(() => _isLoadingMeasures = false);
-                },
-                icon: const Icon(Icons.smart_toy),
-                label: const Text('Detectar compases'),
-              ),
             ],
           ),
-          const SizedBox(height: 12),
           FilledButton.icon(
             onPressed: () async {
               if (_formKey.currentState!.validate()) {
@@ -256,7 +255,6 @@ class SheetMusicFormState extends State<SheetMusicForm> {
             icon: const Icon(Icons.save_alt),
             label: const Text('Guardar'),
           ),
-          const SizedBox(height: 8),
           if (_isLoadingMeasures)
             const CircularProgressIndicator()
           else if (_errorGettingFile)

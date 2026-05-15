@@ -20,8 +20,9 @@ class MyApp extends StatelessWidget {
       title: 'Sight reading app',
       debugShowCheckedModeBanner: true,
       darkTheme: ThemeData(
+        useSystemColors: true,
         brightness: Brightness.dark,
-        colorSchemeSeed: Colors.deepPurple
+        colorSchemeSeed: Colors.blue
       ),
       theme: ThemeData(
         useSystemColors: true,
@@ -40,7 +41,7 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: .fromSeed(seedColor: Colors.blue),
       ),
       //home: const MyHomePage(title: 'Sight reading app'),
       home: const MusicList(),
