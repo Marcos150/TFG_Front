@@ -34,6 +34,7 @@ dependencies:
 
   flutter_doc_scanner: ^0.0.18
   flutter_expandable_fab: ^2.5.2
+  flutter_launcher_icons: ^0.14.4
   flutter_onnxruntime: ^1.7.0
   http: ^1.6.0
   image: ^4.8.0
