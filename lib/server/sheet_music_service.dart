@@ -81,7 +81,6 @@ Future<SheetMusic> createSheetMusic(SheetMusic sheetMusic, File file) async {
 
 Future<SheetMusic> editSheetMusic(SheetMusic sheetMusic) async {
   final authHeader = await getAuthHeader();
-  authHeader['Content-Type'] = 'application/json; charset=UTF-8';
 
   final storedSheetMusic = updateStoredSheetMusic(sheetMusic);
   setPendingUpload(true);
