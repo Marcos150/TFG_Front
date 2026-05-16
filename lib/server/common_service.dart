@@ -11,7 +11,7 @@ const headersBoth = {
 };
 
 Future<Map<String, String>> getAuthHeader() async {
-  final token = LoginState().token;
+  final token = await LoginState.token;
   if (token != null) {
     return {
       'Accept': 'application/json',

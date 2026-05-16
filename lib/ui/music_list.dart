@@ -294,47 +294,53 @@ class _MusicListState extends State<MusicList> {
               ),
             ],
           ),
-          if (!LoginState().isLoggedIn)
-            Row(
-              children: [
-                const Text(
-                  'Iniciar sesión',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(width: 20),
-                FloatingActionButton.small(
-                  heroTag: null,
-                  onPressed: () async {
-                    await Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (context) => const LoginScreen(),
-                      ),
-                    );
-                    setState(() {});
-                  },
-                  child: const Icon(Icons.login),
-                ),
-              ],
-            )
-          else // TODO: Check if there is internet connection to show this.
-            Row(
-              children: [
-                const Text(
-                  'Cerrar sesión',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(width: 20),
-                FloatingActionButton.small(
-                  heroTag: null,
-                  onPressed: () async {
-                    await logout();
-                    showSnackbar('Sesión cerrada correctamente', context);
-                    setState(() {});
-                  },
-                  child: const Icon(Icons.logout),
-                ),
-              ],
-            ),
+          FutureBuilder(
+            future: LoginState.isLoggedIn(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData && snapshot.data == true) {
+                return Row(
+                  children: [
+                    const Text(
+                      'Cerrar sesión',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(width: 20),
+                    FloatingActionButton.small(
+                      heroTag: null,
+                      onPressed: () async {
+                        await logout();
+                        showSnackbar('Sesión cerrada correctamente', context);
+                        setState(() {});
+                      },
+                      child: const Icon(Icons.logout),
+                    ),
+                  ],
+                );
+              } else {
+                return Row(
+                  children: [
+                    const Text(
+                      'Iniciar sesión',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(width: 20),
+                    FloatingActionButton.small(
+                      heroTag: null,
+                      onPressed: () async {
+                        await Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (context) => const LoginScreen(),
+                          ),
+                        );
+                        setState(() {});
+                      },
+                      child: const Icon(Icons.login),
+                    ),
+                  ],
+                );
+              }
+            },
+          ),
         ],
       ),
     );

@@ -28,34 +28,40 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       title: Text(title),
       actions: [
-        if (LoginState().isLoggedIn)
-          IconButton(
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (context) => const ProfileScreen(),
-              ),
-            ),
-            icon: const CircleAvatar(child: Icon(Icons.person)),
-          )
-        else
-          IconButton(
-            icon: const Icon(Icons.cloud_upload, color: Colors.amber),
-            onPressed: () {
-              myShowDialog(
-                'Guardado en la nube',
-                'Puedes guardar tus partituras en la nube si inicias sesión.',
-                context,
-                actionLabels: [const Text('Iniciar sesión')],
-                actions: [
-                  () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (context) => const LoginScreen(),
-                    ),
+        FutureBuilder(
+          future: LoginState.isLoggedIn(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData && snapshot.data == true) {
+              return IconButton(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (context) => const ProfileScreen(),
                   ),
-                ],
+                ),
+                icon: const CircleAvatar(child: Icon(Icons.person)),
               );
-            },
-          ),
+            } else {
+              return IconButton(
+                icon: const Icon(Icons.cloud_upload, color: Colors.amber),
+                onPressed: () {
+                  myShowDialog(
+                    'Guardado en la nube',
+                    'Puedes guardar tus partituras en la nube si inicias sesión.',
+                    context,
+                    actionLabels: [const Text('Iniciar sesión')],
+                    actions: [
+                      () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (context) => const LoginScreen(),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              );
+            }
+          },
+        ),
       ],
       actionsPadding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
     );

@@ -36,7 +36,7 @@ Future<void> deleteAccount() async {
   );
 
   if (response.statusCode == 204) {
-    LoginState().logout();
+    LoginState.logout();
   } else {
     throw Exception('Failed to delete account: ${response.body}');
   }

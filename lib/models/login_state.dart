@@ -1,33 +1,25 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginState {
-  String? token;
 
-  static final LoginState _singleton = LoginState._internal();
+  LoginState._();
 
-  factory LoginState() {
-    return _singleton;
-  }
-
-  LoginState._internal() {
-    _init();
-  }
-
-  bool get isLoggedIn => token != null;
-
-  void _init() async {
+  static Future<String?> get token async {
     final prefs = await SharedPreferences.getInstance();
-    token = prefs.getString('token');
+    return prefs.getString('token');
   }
 
-  void login(String token) async {
-    this.token = token;
+  static Future<bool> isLoggedIn() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token') != null;
+  }
+
+  static void login(String token) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString('token', token);
   }
 
-  void logout() async {
-    token = null;
+  static void logout() async {
     final prefs = await SharedPreferences.getInstance();
     prefs.remove('token');
   }
