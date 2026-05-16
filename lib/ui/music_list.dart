@@ -341,6 +341,20 @@ class _MusicListState extends State<MusicList> {
               }
             },
           ),
+          Row(
+            children: [
+              const Text(
+                'Licencias',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(width: 20),
+              FloatingActionButton.small(
+                heroTag: null,
+                onPressed: () => showLicensePage(context: context),
+                child: const Icon(Icons.book),
+              ),
+            ],
+          ),
         ],
       ),
     );
