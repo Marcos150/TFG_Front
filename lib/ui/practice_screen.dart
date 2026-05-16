@@ -42,7 +42,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
       timeSignature: PlayingState().beatsPerMeasure,
     );
 
-    _tickSubscription = _metronome.tickStream.listen((int tick) async {
+    _tickSubscription = _metronome.tickStream.listen((final int tick) async {
       if (tick == 0) {
         PlayingState().currentMeasure++;
         setState(() {});
@@ -66,14 +66,15 @@ class _PracticeScreenState extends State<PracticeScreen> {
               spacing: 24,
               children: [
                 MaintainedPressDetector(
-                  enabled: !PlayingState().isPlaying,
+                  enabled: _sheetMusicFile == null || !PlayingState().isPlaying,
                   frequency: const Duration(milliseconds: 100),
                   whileLongPress: () {
                     _metronome.setBPM(--_bpm);
                     setState(() {});
                   },
                   child: IconButton.outlined(
-                    onPressed: PlayingState().isPlaying
+                    onPressed:
+                        _sheetMusicFile != null && PlayingState().isPlaying
                         ? null
                         : () {
                             _metronome.setBPM(--_bpm);
@@ -97,14 +98,15 @@ class _PracticeScreenState extends State<PracticeScreen> {
                   ),
                 ),
                 MaintainedPressDetector(
-                  enabled: !PlayingState().isPlaying,
+                  enabled: _sheetMusicFile == null || !PlayingState().isPlaying,
                   frequency: const Duration(milliseconds: 100),
                   whileLongPress: () {
                     _metronome.setBPM(++_bpm);
                     setState(() {});
                   },
                   child: IconButton.outlined(
-                    onPressed: PlayingState().isPlaying
+                    onPressed:
+                        _sheetMusicFile != null && PlayingState().isPlaying
                         ? null
                         : () {
                             _metronome.setBPM(++_bpm);
@@ -115,7 +117,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 ),
               ],
             ),
-            if (!PlayingState().isPlaying)
+            if (_sheetMusicFile == null || !PlayingState().isPlaying)
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -123,7 +125,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                   Text('= $_bpm', style: const TextStyle(fontSize: 32)),
                 ],
               ),
-            if (!PlayingState().isPlaying)
+            if (_sheetMusicFile == null || !PlayingState().isPlaying)
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 spacing: 8,
@@ -135,7 +137,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
                         style: const TextStyle(fontSize: 18),
                       ),
                       selected: PlayingState().beatsPerMeasure == index + 1,
-                      onSelected: PlayingState().isPlaying
+                      onSelected:
+                          _sheetMusicFile != null && PlayingState().isPlaying
                           ? null
                           : (bool selected) {
                               setState(() {
