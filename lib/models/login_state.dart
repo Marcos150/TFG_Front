@@ -17,19 +17,18 @@ class LoginState {
 
   void _init() async {
     final prefs = await SharedPreferences.getInstance();
-    final storedToken = prefs.getString('token');
-    token = storedToken;
+    token = prefs.getString('token');
   }
 
   void login(String token) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('token', token);
     this.token = token;
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('token', token);
   }
 
   void logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('token');
     token = null;
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove('token');
   }
 }

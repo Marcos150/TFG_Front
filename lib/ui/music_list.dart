@@ -24,7 +24,6 @@ class MusicList extends StatefulWidget {
 
 class _MusicListState extends State<MusicList> {
   List<SheetMusic>? _sheetMusicData;
-  List<File>? _sheetMusicFiles;
 
   Future<List<SheetMusic>> _getSheetMusic() async =>
       _sheetMusicData = await getAllSheetMusic().catchError((
@@ -38,18 +37,14 @@ class _MusicListState extends State<MusicList> {
         return const <SheetMusic>[];
       });
 
-  Future<void> _getSheetMusicFiles() async {
-    final sheetMusicList = await _getSheetMusic();
-    Future.wait(
-      sheetMusicList.map((sheetMusic) => getSheetMusicFile(sheetMusic.id)),
-    ).then((files) => setState(() => _sheetMusicFiles = files));
-  }
+  Future<List<File>> _getSheetMusicFiles(List<SheetMusic> sheetMList) async {
+    final List<File> sheetMusicFiles = List.filled(sheetMList.length, File(''));
+    for (int i = 0; i < sheetMList.length; i++) {
+      final file = await getSheetMusicFile(sheetMList[i].id);
+      sheetMusicFiles[i] = file;
+    }
 
-  @override
-  void initState() {
-    _getSheetMusic();
-    _getSheetMusicFiles();
-    super.initState();
+    return sheetMusicFiles;
   }
 
   @override
@@ -62,7 +57,10 @@ class _MusicListState extends State<MusicList> {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: FutureBuilder(
-          future: _getSheetMusic(),
+          future: _getSheetMusic().then((res) {
+            _getSheetMusicFiles(res);
+            return res;
+          }),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               if (_sheetMusicData!.isEmpty) {
@@ -167,15 +165,22 @@ class _MusicListState extends State<MusicList> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          if (_sheetMusicFiles != null &&
-                              _sheetMusicFiles!.length > index)
-                            Expanded(
-                              child: ImageViewer(
-                                file: _sheetMusicFiles![index],
-                              ),
-                            )
-                          else
-                            const Center(child: CircularProgressIndicator()),
+                          FutureBuilder(
+                            future: _getSheetMusicFiles(_sheetMusicData!),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                return Expanded(
+                                  child: ImageViewer(
+                                    file: snapshot.data![index],
+                                  ),
+                                );
+                              } else {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              }
+                            },
+                          ),
                         ],
                       ),
                     ),
@@ -305,8 +310,7 @@ class _MusicListState extends State<MusicList> {
                         builder: (context) => const LoginScreen(),
                       ),
                     );
-                    _getSheetMusic();
-                    _getSheetMusicFiles();
+                    setState(() {});
                   },
                   child: const Icon(Icons.login),
                 ),
