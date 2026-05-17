@@ -6,7 +6,9 @@ import 'common_service.dart';
 const _url = '$urlCommon/tag';
 
 Future<List<Tag>> getAllTags() async {
-  final response = await http.get(Uri.parse(_url), headers: headersReceive);
+  final response = await http
+      .get(Uri.parse(_url), headers: headersReceive)
+      .timeout(const Duration(seconds: 4));
 
   if (response.statusCode == 200) {
     final List<dynamic> list = jsonDecode(response.body);

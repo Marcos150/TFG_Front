@@ -179,16 +179,15 @@ class SheetMusicFormState extends State<SheetMusicForm> {
             mainAxisAlignment: MainAxisAlignment.center,
             spacing: 16,
             children: [
-              FilledButton.icon(
+              IconButton(
                 onPressed: () async {
                   setState(() => _isLoadingMeasures = true);
                   _measures = await findMeasures(_file!);
                   setState(() => _isLoadingMeasures = false);
                 },
                 icon: const Icon(Icons.smart_toy),
-                label: const Text('Detectar compases'),
               ),
-              FilledButton.icon(
+              IconButton(
                 onPressed: () {
                   Navigator.of(context)
                       .push(
@@ -204,7 +203,6 @@ class SheetMusicFormState extends State<SheetMusicForm> {
                       );
                 },
                 icon: const Icon(Icons.edit),
-                label: const Text('Editar compases'),
               ),
             ],
           ),

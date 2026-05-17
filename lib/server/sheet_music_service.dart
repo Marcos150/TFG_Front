@@ -24,7 +24,9 @@ Future<List<SheetMusic>> getAllSheetMusic() async {
   final headersAuth = await getAuthHeader();
 
   try {
-    final response = await http.get(Uri.parse(_url), headers: headersAuth);
+    final response = await http
+        .get(Uri.parse(_url), headers: headersAuth)
+        .timeout(const Duration(seconds: 4));
 
     if (response.statusCode == 200) {
       final list = jsonDecode(response.body);
@@ -62,7 +64,7 @@ Future<SheetMusic> createSheetMusic(SheetMusic sheetMusic, File file) async {
   final storedSheetMusic = storeSheetMusic(sheetMusic, file: file);
   setPendingUpload(true);
   try {
-    final response = await request.send();
+    final response = await request.send().timeout(const Duration(seconds: 4));
 
     if (response.statusCode == 201) {
       setPendingUpload(false);
@@ -86,11 +88,13 @@ Future<SheetMusic> editSheetMusic(SheetMusic sheetMusic) async {
   setPendingUpload(true);
 
   try {
-    final response = await http.put(
-      Uri.parse('$_url/${sheetMusic.id}'),
-      headers: authHeader,
-      body: jsonEncode(sheetMusic),
-    );
+    final response = await http
+        .put(
+          Uri.parse('$_url/${sheetMusic.id}'),
+          headers: authHeader,
+          body: jsonEncode(sheetMusic),
+        )
+        .timeout(const Duration(seconds: 4));
 
     if (response.statusCode == 200) {
       setPendingUpload(false);
@@ -111,10 +115,9 @@ Future<File> getSheetMusicFile(int id) async {
 
   final headersAuth = await getAuthHeader();
   try {
-    final response = await http.get(
-      Uri.parse('$_url/$id/file'),
-      headers: headersAuth,
-    );
+    final response = await http
+        .get(Uri.parse('$_url/$id/file'), headers: headersAuth)
+        .timeout(const Duration(seconds: 4));
 
     if (response.statusCode == 200) {
       final extension =
@@ -134,10 +137,9 @@ Future<void> deleteSheetMusic(int id) async {
   deleteLocalSheetMusic(id);
   setPendingUpload(true);
   try {
-    final response = await http.delete(
-      Uri.parse('$_url/$id'),
-      headers: headersAuth,
-    );
+    final response = await http
+        .delete(Uri.parse('$_url/$id'), headers: headersAuth)
+        .timeout(const Duration(seconds: 4));
 
     if (response.statusCode == 204) {
       setPendingUpload(false);

@@ -10,6 +10,7 @@ getProfileInfo() async {
   final authHeaderFuture = await getAuthHeader();
   return http
       .get(Uri.parse('$urlCommon/profile'), headers: authHeaderFuture)
+      .timeout(const Duration(seconds: 4))
       .then((response) {
         if (response.statusCode == 200) {
           final data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -30,10 +31,9 @@ getProfileInfo() async {
 
 Future<void> deleteAccount() async {
   final authHeaderFuture = await getAuthHeader();
-  final response = await http.delete(
-    Uri.parse('$urlCommon/profile'),
-    headers: authHeaderFuture,
-  );
+  final response = await http
+      .delete(Uri.parse('$urlCommon/profile'), headers: authHeaderFuture)
+      .timeout(const Duration(seconds: 4));
 
   if (response.statusCode == 204) {
     LoginState.logout();

@@ -4,11 +4,13 @@ import 'package:tfg/models/login_state.dart';
 import 'common_service.dart';
 
 Future<String> register(String email, String password) async {
-  final response = await http.post(
-    Uri.parse('$urlCommon/register'),
-    headers: headersBoth,
-    body: jsonEncode({'email': email, 'password': password}),
-  );
+  final response = await http
+      .post(
+        Uri.parse('$urlCommon/register'),
+        headers: headersBoth,
+        body: jsonEncode({'email': email, 'password': password}),
+      )
+      .timeout(const Duration(seconds: 4));
 
   if (response.statusCode == 201) {
     final token = jsonDecode(response.body)['token'] as String;
@@ -20,11 +22,13 @@ Future<String> register(String email, String password) async {
 }
 
 Future<String> login(String email, String password) async {
-  final response = await http.post(
-    Uri.parse('$urlCommon/login'),
-    headers: headersBoth,
-    body: jsonEncode({'email': email, 'password': password}),
-  );
+  final response = await http
+      .post(
+        Uri.parse('$urlCommon/login'),
+        headers: headersBoth,
+        body: jsonEncode({'email': email, 'password': password}),
+      )
+      .timeout(const Duration(seconds: 4));
 
   if (response.statusCode == 200) {
     final token = jsonDecode(response.body)['token'] as String;
@@ -37,10 +41,9 @@ Future<String> login(String email, String password) async {
 
 Future<void> logout() async {
   final headersAuth = await getAuthHeader();
-  final response = await http.post(
-    Uri.parse('$urlCommon/logout'),
-    headers: headersAuth,
-  );
+  final response = await http
+      .post(Uri.parse('$urlCommon/logout'), headers: headersAuth)
+      .timeout(const Duration(seconds: 4));
 
   if (response.statusCode == 204) {
     LoginState.logout();

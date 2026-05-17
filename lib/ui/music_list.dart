@@ -82,7 +82,7 @@ class _MusicListState extends State<MusicList> {
                 itemBuilder: (BuildContext context, int index) => GridTile(
                   footer: ClipRRect(
                     borderRadius: const BorderRadius.vertical(
-                      bottom: Radius.circular(8),
+                      bottom: Radius.circular(9),
                     ),
                     child: GridTileBar(
                       backgroundColor: Colors.black54,
