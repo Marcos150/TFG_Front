@@ -103,12 +103,7 @@ class _MusicListState extends State<MusicList> {
                                       ),
                                     ),
                                   )
-                                  .then(
-                                    (res) => setState(
-                                      () => _sheetMusicData![index] =
-                                          res ?? _sheetMusicData![index],
-                                    ),
-                                  );
+                                  .then((res) => setState(() {}));
                             },
                           ),
                           IconButton(
